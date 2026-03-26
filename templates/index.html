@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block title %}CampusOS — Learn. Teach. Transfer.{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-badge">CS50x Final Project</div>
+  <h1 class="hero-title">Skills exchange<br>built for <em>students</em></h1>
+  <p class="hero-sub">Find a peer who can teach you Python. Offer your calculus skills in return. A community platform for college students — built with Flask, SQL, and AI-powered matching.</p>
+  <div class="hero-actions">
+    <a href="{{ url_for('register') }}" class="btn-primary btn-lg">Get started free</a>
+    <a href="{{ url_for('login') }}" class="btn-ghost btn-lg">Log in</a>
+  </div>
+  <div class="hero-tags">
+    <span class="tag">Python tutoring</span>
+    <span class="tag">Calculus help</span>
+    <span class="tag">Essay editing</span>
+    <span class="tag">Music lessons</span>
+    <span class="tag">Career advice</span>
+    <span class="tag">Language exchange</span>
+  </div>
+</section>
+
+<section class="features">
+  <div class="feature-card">
+    <div class="feature-icon">🎓</div>
+    <h3>Post your skills</h3>
+    <p>List what you can teach and what you want to learn. From intro CS to advanced math — any skill counts.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🤝</div>
+    <h3>Match with peers</h3>
+    <p>Browse the community feed and send match requests. Trade skills — no money needed.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🧠</div>
+    <h3>AI-ranked results</h3>
+    <p>Search the feed and our TF-IDF model surfaces the most relevant matches first — not just newest.</p>
+  </div>
+</section>
+{% endblock %}

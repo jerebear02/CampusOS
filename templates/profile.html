@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block title %}{{ user.username }} — CampusOS{% endblock %}
+
+{% block content %}
+<div class="profile-wrap">
+
+  <div class="profile-header">
+    <div class="profile-avatar-lg">{{ user.username[0].upper() }}</div>
+    <div class="profile-meta">
+      <h2>{{ user.username }}</h2>
+      {% if user.school %}<p class="profile-school">🏫 {{ user.school }}</p>{% endif %}
+      {% if user.bio %}<p class="profile-bio">{{ user.bio }}</p>{% endif %}
+      {% if is_own_profile %}
+        <a href="{{ url_for('add_skill') }}" class="btn-primary">+ Add skill</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="profile-skills-grid">
+
+    <div class="profile-skill-col">
+      <h3 class="col-label teach-label">🎓 Can teach</h3>
+      {% if teach_skills %}
+        {% for skill in teach_skills %}
+          <div class="profile-skill-card">
+            <div class="profile-skill-top">
+              <strong>{{ skill.name }}</strong>
+              {% if is_own_profile %}
+                <form method="POST" action="{{ url_for('delete_skill', skill_id=skill.id) }}" style="display:inline">
+                  <button type="submit" class="btn-delete" onclick="return confirm('Remove this skill?')">✕</button>
+                </form>
+              {% else %}
+                {% if skill.id in pending_match_ids %}
+                  <span class="badge-pending">Requested</span>
+                {% else %}
+                  <form method="POST" action="{{ url_for('request_match', skill_id=skill.id) }}">
+                    <button type="submit" class="btn-match-sm">Match →</button>
+                  </form>
+                {% endif %}
+              {% endif %}
+            </div>
+            {% if skill.description %}<p class="skill-desc">{{ skill.description }}</p>{% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="empty-hint">No skills to teach listed yet.</p>
+      {% endif %}
+    </div>
+
+    <div class="profile-skill-col">
+      <h3 class="col-label learn-label">📚 Wants to learn</h3>
+      {% if learn_skills %}
+        {% for skill in learn_skills %}
+          <div class="profile-skill-card learn-card">
+            <div class="profile-skill-top">
+              <strong>{{ skill.name }}</strong>
+              {% if is_own_profile %}
+                <form method="POST" action="{{ url_for('delete_skill', skill_id=skill.id) }}" style="display:inline">
+                  <button type="submit" class="btn-delete" onclick="return confirm('Remove this skill?')">✕</button>
+                </form>
+              {% endif %}
+            </div>
+            {% if skill.description %}<p class="skill-desc">{{ skill.description }}</p>{% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="empty-hint">No learning goals listed yet.</p>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

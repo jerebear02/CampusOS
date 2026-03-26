@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block title %}Add Skill — CampusOS{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>Add a skill</h2>
+    <p class="auth-sub">What can you teach — or what do you want to learn?</p>
+
+    <form method="POST" action="{{ url_for('add_skill') }}">
+      <div class="form-group">
+        <label>Skill name</label>
+        <input type="text" name="name" placeholder="e.g. Python, Linear Algebra, Guitar…" required />
+      </div>
+
+      <div class="form-group">
+        <label>Type</label>
+        <div class="type-toggle">
+          <label class="type-option">
+            <input type="radio" name="type" value="teach" checked />
+            <span>🎓 I can teach this</span>
+          </label>
+          <label class="type-option">
+            <input type="radio" name="type" value="learn" />
+            <span>📚 I want to learn this</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Description <span class="optional">(optional — helps AI matching)</span></label>
+        <textarea name="description" rows="3" placeholder="e.g. I've taken CS50, I can help with pointers, recursion, and data structures…"></textarea>
+      </div>
+
+      <button type="submit" class="btn-primary btn-block">Add skill</button>
+      <a href="{{ url_for('profile', username=session.username) }}" class="btn-ghost btn-block" style="margin-top:.5rem">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

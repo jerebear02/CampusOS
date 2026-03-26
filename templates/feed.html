@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block title %}Feed — CampusOS{% endblock %}
+
+{% block content %}
+<div class="feed-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h3>What you want to learn</h3>
+    {% if my_wants %}
+      <ul class="want-list">
+        {% for w in my_wants %}
+          <li>
+            <span class="want-dot"></span>
+            <div>
+              <strong>{{ w.name }}</strong>
+              {% if w.description %}<p>{{ w.description }}</p>{% endif %}
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty-hint">Add a "learn" skill to your profile to get personalized matches.</p>
+    {% endif %}
+    <a href="{{ url_for('add_skill') }}" class="btn-primary btn-block" style="margin-top:1rem">+ Add skill</a>
+  </aside>
+
+  <!-- Main feed -->
+  <div class="feed-main">
+    <div class="feed-header">
+      <h2>Skill Feed</h2>
+      <form method="GET" action="{{ url_for('feed') }}" class="search-form">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search skills… e.g. Python, calculus" />
+        <button type="submit" class="btn-primary">Search</button>
+        {% if query %}<a href="{{ url_for('feed') }}" class="btn-ghost">Clear</a>{% endif %}
+      </form>
+    </div>
+
+    {% if ai_ranked and query %}
+      <div class="ai-badge">
+        🧠 AI-ranked results for "<strong>{{ query }}</strong>"
+        {% if not ai_available %} <em>(install scikit-learn for AI ranking)</em>{% endif %}
+      </div>
+    {% endif %}
+
+    {% if skills %}
+      <div class="skill-grid">
+        {% for skill in skills %}
+          <div class="skill-card">
+            <div class="skill-card-top">
+              <div class="skill-avatar">{{ skill.username[0].upper() }}</div>
+              <div>
+                <a href="{{ url_for('profile', username=skill.username) }}" class="skill-user">{{ skill.username }}</a>
+                {% if skill.school %}<span class="skill-school">{{ skill.school }}</span>{% endif %}
+              </div>
+            </div>
+            <h4 class="skill-name">{{ skill.name }}</h4>
+            {% if skill.description %}
+              <p class="skill-desc">{{ skill.description }}</p>
+            {% endif %}
+            <form method="POST" action="{{ url_for('request_match', skill_id=skill.id) }}" style="margin-top:auto;padding-top:.75rem">
+              <button type="submit" class="btn-match">Request match →</button>
+            </form>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <p>No skills posted yet{% if query %} matching "{{ query }}"{% endif %}.</p>
+        <a href="{{ url_for('add_skill') }}" class="btn-primary">Be the first — add a skill</a>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

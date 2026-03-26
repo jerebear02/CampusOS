@@ -1,0 +1,81 @@
+{% extends "layout.html" %}
+{% block title %}Matches — CampusOS{% endblock %}
+
+{% block content %}
+<div class="matches-wrap">
+  <h2>Your Matches</h2>
+
+  <!-- Incoming -->
+  <section class="match-section">
+    <h3 class="match-section-title incoming-title">
+      Incoming requests
+      {% if incoming %}<span class="badge-count">{{ incoming|length }}</span>{% endif %}
+    </h3>
+    {% if incoming %}
+      {% for m in incoming %}
+        <div class="match-card incoming-card">
+          <div class="match-info">
+            <a href="{{ url_for('profile', username=m.requester_name) }}" class="match-user">{{ m.requester_name }}</a>
+            {% if m.requester_school %}<span class="match-school">{{ m.requester_school }}</span>{% endif %}
+            <p>wants to learn your skill: <strong>{{ m.skill_name }}</strong></p>
+            {% if m.skill_desc %}<p class="skill-desc">{{ m.skill_desc }}</p>{% endif %}
+          </div>
+          <div class="match-actions">
+            <form method="POST" action="{{ url_for('respond_match', match_id=m.id) }}" style="display:inline">
+              <input type="hidden" name="action" value="accepted" />
+              <button type="submit" class="btn-accept">Accept</button>
+            </form>
+            <form method="POST" action="{{ url_for('respond_match', match_id=m.id) }}" style="display:inline">
+              <input type="hidden" name="action" value="declined" />
+              <button type="submit" class="btn-decline">Decline</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty-hint">No incoming requests yet.</p>
+    {% endif %}
+  </section>
+
+  <!-- Accepted -->
+  <section class="match-section">
+    <h3 class="match-section-title accepted-title">
+      Active connections
+      {% if accepted %}<span class="badge-count">{{ accepted|length }}</span>{% endif %}
+    </h3>
+    {% if accepted %}
+      {% for m in accepted %}
+        <div class="match-card accepted-card">
+          <div class="match-info">
+            <a href="{{ url_for('profile', username=m.partner_name) }}" class="match-user">{{ m.partner_name }}</a>
+            <p>Skill: <strong>{{ m.skill_name }}</strong></p>
+          </div>
+          <span class="badge-connected">✓ Connected</span>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty-hint">No active connections yet. Accept an incoming request or get someone to accept yours.</p>
+    {% endif %}
+  </section>
+
+  <!-- Outgoing -->
+  <section class="match-section">
+    <h3 class="match-section-title outgoing-title">Sent requests</h3>
+    {% if outgoing %}
+      {% for m in outgoing %}
+        <div class="match-card outgoing-card">
+          <div class="match-info">
+            <a href="{{ url_for('profile', username=m.receiver_name) }}" class="match-user">{{ m.receiver_name }}</a>
+            {% if m.receiver_school %}<span class="match-school">{{ m.receiver_school }}</span>{% endif %}
+            <p>Skill: <strong>{{ m.skill_name }}</strong></p>
+          </div>
+          <span class="badge-{{ m.status }}">{{ m.status.capitalize() }}</span>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty-hint">You haven't sent any match requests yet. <a href="{{ url_for('feed') }}">Browse the feed</a>.</p>
+    {% endif %}
+  </section>
+
+</div>
+{% endblock %}
