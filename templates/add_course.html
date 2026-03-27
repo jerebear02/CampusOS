@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+{% block title %}Add Course — CampusOS{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+    <h2>Add a Course</h2>
+    <p class="auth-sub">Track completed, in-progress, or planned courses</p>
+
+    <form method="POST" action="{{ url_for('add_course') }}">
+
+      <div class="form-group">
+        <label>Course name</label>
+        <input type="text" name="name" placeholder="e.g. Calculus II, CS50, English 1010…" required />
+      </div>
+
+      <div class="form-group">
+        <label>Credits</label>
+        <input type="number" name="credits" placeholder="3" step="0.5" min="0.5" max="12" required />
+      </div>
+
+      <div class="form-group">
+        <label>Status</label>
+        <div class="type-toggle">
+          <label class="type-option">
+            <input type="radio" name="status" value="completed" checked />
+            <span>✓ Completed</span>
+          </label>
+          <label class="type-option">
+            <input type="radio" name="status" value="in_progress" />
+            <span>📚 In Progress</span>
+          </label>
+          <label class="type-option">
+            <input type="radio" name="status" value="planned" />
+            <span>🗓 Planned</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group" id="grade-group">
+        <label>Grade</label>
+        <select name="grade">
+          {% for g in grades %}
+            <option value="{{ g }}" {% if g == 'A' %}selected{% endif %}>{{ g }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Semester <span class="optional">(optional)</span></label>
+        <input type="text" name="semester" placeholder="e.g. Fall 2024, Spring 2025…" />
+      </div>
+
+      <button type="submit" class="btn-primary btn-block">Add course</button>
+      <a href="{{ url_for('planner') }}" class="btn-ghost btn-block" style="margin-top:.5rem">Cancel</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Hide grade field when status is not completed
+  const radios   = document.querySelectorAll('input[name="status"]');
+  const gradeGrp = document.getElementById('grade-group');
+  radios.forEach(r => r.addEventListener('change', () => {
+    gradeGrp.style.display = r.value === 'completed' ? 'block' : 'none';
+    if (r.value !== 'completed') gradeGrp.style.display = 'none';
+    else gradeGrp.style.display = 'block';
+  }));
+</script>
+{% endblock %}

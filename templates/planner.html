@@ -1,0 +1,167 @@
+{% extends "layout.html" %}
+{% block title %}Transfer Planner — CampusOS{% endblock %}
+
+{% block content %}
+<div class="planner-wrap">
+
+  <div class="budget-header">
+    <h2>Transfer Planner</h2>
+    <div class="budget-header-actions">
+      <a href="{{ url_for('transfer_community') }}" class="btn-ghost">Community Data</a>
+      <a href="{{ url_for('add_course') }}" class="btn-primary">+ Add Course</a>
+    </div>
+  </div>
+
+  <!-- GPA Summary -->
+  <div class="gpa-banner">
+    <div class="gpa-stat">
+      <span class="gpa-label">Current GPA</span>
+      <span class="gpa-value {% if gpa >= 3.5 %}gpa-high{% elif gpa >= 3.0 %}gpa-mid{% else %}gpa-low{% endif %}">
+        {{ "%.2f"|format(gpa) }}
+      </span>
+    </div>
+    <div class="gpa-stat">
+      <span class="gpa-label">Credits Completed</span>
+      <span class="gpa-value">{{ "%.0f"|format(total_credits) }}</span>
+    </div>
+    <div class="gpa-stat">
+      <span class="gpa-label">In Progress</span>
+      <span class="gpa-value">{{ in_progress|length }} course{{ 's' if in_progress|length != 1 }}</span>
+    </div>
+    <div class="gpa-stat">
+      <span class="gpa-label">Planned</span>
+      <span class="gpa-value">{{ planned|length }} course{{ 's' if planned|length != 1 }}</span>
+    </div>
+  </div>
+
+  <div class="planner-grid">
+
+    <!-- Courses -->
+    <div class="planner-main">
+
+      {% if completed %}
+        <h3 class="col-label" style="color:var(--accent)">✓ Completed</h3>
+        <table class="course-table">
+          <thead><tr><th>Course</th><th>Credits</th><th>Grade</th><th>Semester</th><th></th></tr></thead>
+          <tbody>
+            {% for c in completed %}
+              <tr>
+                <td class="course-name">{{ c.name }}</td>
+                <td>{{ c.credits }}</td>
+                <td><span class="grade-badge grade-{{ c.grade[0] }}">{{ c.grade }}</span></td>
+                <td class="txn-date">{{ c.semester or '—' }}</td>
+                <td>
+                  <form method="POST" action="{{ url_for('delete_course', course_id=c.id) }}">
+                    <button type="submit" class="btn-delete" onclick="return confirm('Remove?')">✕</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+
+      {% if in_progress %}
+        <h3 class="col-label" style="color:var(--gold);margin-top:1.5rem">📚 In Progress</h3>
+        <table class="course-table">
+          <thead><tr><th>Course</th><th>Credits</th><th>Semester</th><th></th></tr></thead>
+          <tbody>
+            {% for c in in_progress %}
+              <tr>
+                <td class="course-name">{{ c.name }}</td>
+                <td>{{ c.credits }}</td>
+                <td class="txn-date">{{ c.semester or '—' }}</td>
+                <td>
+                  <form method="POST" action="{{ url_for('delete_course', course_id=c.id) }}">
+                    <button type="submit" class="btn-delete" onclick="return confirm('Remove?')">✕</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+
+      {% if planned %}
+        <h3 class="col-label" style="color:var(--ink-faint);margin-top:1.5rem">🗓 Planned</h3>
+        <table class="course-table">
+          <thead><tr><th>Course</th><th>Credits</th><th>Semester</th><th></th></tr></thead>
+          <tbody>
+            {% for c in planned %}
+              <tr>
+                <td class="course-name">{{ c.name }}</td>
+                <td>{{ c.credits }}</td>
+                <td class="txn-date">{{ c.semester or '—' }}</td>
+                <td>
+                  <form method="POST" action="{{ url_for('delete_course', course_id=c.id) }}">
+                    <button type="submit" class="btn-delete" onclick="return confirm('Remove?')">✕</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+
+      {% if not courses %}
+        <div class="empty-state">
+          <p>No courses added yet.</p>
+          <a href="{{ url_for('add_course') }}" class="btn-primary">Add your first course</a>
+        </div>
+      {% endif %}
+
+    </div>
+
+    <!-- Target schools sidebar -->
+    <div class="planner-sidebar">
+      <h3 class="section-title">Target Schools</h3>
+
+      <!-- Add school form -->
+      <form method="POST" action="{{ url_for('add_school') }}" class="add-school-form">
+        <input type="text" name="name" placeholder="School name…" required />
+        <input type="text" name="major" placeholder="Major (optional)" />
+        <input type="date" name="deadline" />
+        <button type="submit" class="btn-primary btn-block">Add school</button>
+      </form>
+
+      {% if target_schools %}
+        <div class="school-list">
+          {% for s in target_schools %}
+            <div class="school-card">
+              <div class="school-card-top">
+                <strong>{{ s.name }}</strong>
+                <form method="POST" action="{{ url_for('delete_school', school_id=s.id) }}">
+                  <button type="submit" class="btn-delete">✕</button>
+                </form>
+              </div>
+              {% if s.major %}<p class="school-major">{{ s.major }}</p>{% endif %}
+              {% if s.deadline %}<p class="school-deadline">🗓 {{ s.deadline }}</p>{% endif %}
+
+              {% if s.prob is not none %}
+                <div class="prob-bar-wrap">
+                  <div class="prob-label">
+                    🧠 AI estimate
+                    <span class="prob-pct {% if s.prob >= 70 %}prob-high{% elif s.prob >= 40 %}prob-mid{% else %}prob-low{% endif %}">
+                      {{ s.prob }}%
+                    </span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill {% if s.prob >= 70 %}fill-high{% elif s.prob >= 40 %}fill-mid{% else %}fill-low{% endif %}"
+                         style="width:{{ s.prob }}%"></div>
+                  </div>
+                  <p class="prob-note">Based on {{ s.sample_size }} community report{{ 's' if s.sample_size != 1 }}</p>
+                </div>
+              {% else %}
+                <p class="prob-note" style="margin-top:.5rem">No community data yet for this school. <a href="{{ url_for('transfer_community') }}">Add data →</a></p>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="empty-hint" style="margin-top:.75rem">Add a target school above to track your application and get an AI admission estimate.</p>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}

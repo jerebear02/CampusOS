@@ -1,0 +1,141 @@
+{% extends "layout.html" %}
+{% block title %}Transfer Community — CampusOS{% endblock %}
+
+{% block content %}
+<div class="planner-wrap">
+
+  <div class="budget-header">
+    <h2>Transfer Community Data</h2>
+    <a href="{{ url_for('planner') }}" class="btn-ghost">← Planner</a>
+  </div>
+
+  <p style="color:var(--ink-soft);margin-bottom:1.75rem;max-width:620px">
+    Share your transfer outcome anonymously to help other students get better AI predictions.
+    The more data the community adds, the smarter the estimates get.
+  </p>
+
+  <div class="community-grid">
+
+    <!-- Share form -->
+    <div class="share-card">
+      <h3>Share Your Outcome</h3>
+      <form method="POST" action="{{ url_for('transfer_community') }}">
+        <div class="form-group">
+          <label>School name</label>
+          <input type="text" name="school_name" placeholder="e.g. Georgia Tech, UT Austin…" required />
+        </div>
+        <div class="form-group">
+          <label>Major <span class="optional">(optional)</span></label>
+          <input type="text" name="major" placeholder="e.g. Computer Science" />
+        </div>
+        <div class="form-group">
+          <label>GPA at time of application</label>
+          <input type="number" name="gpa" placeholder="3.75" step="0.01" min="0" max="4" required />
+        </div>
+        <div class="form-group">
+          <label>Credit hours completed</label>
+          <input type="number" name="credit_hours" placeholder="60" step="0.5" min="0" required />
+        </div>
+        <div class="form-group">
+          <label>Outcome</label>
+          <div class="type-toggle">
+            <label class="type-option">
+              <input type="radio" name="outcome" value="admitted" checked />
+              <span>✅ Admitted</span>
+            </label>
+            <label class="type-option">
+              <input type="radio" name="outcome" value="denied" />
+              <span>❌ Denied</span>
+            </label>
+            <label class="type-option">
+              <input type="radio" name="outcome" value="waitlisted" />
+              <span>⏳ Waitlisted</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Year <span class="optional">(optional)</span></label>
+          <input type="number" name="year" placeholder="2024" min="2010" max="2030" />
+        </div>
+        <div class="form-group">
+          <label>Notes <span class="optional">(optional)</span></label>
+          <textarea name="notes" rows="2" placeholder="Any context that might help others…"></textarea>
+        </div>
+        <button type="submit" class="btn-primary btn-block">Share outcome</button>
+      </form>
+    </div>
+
+    <!-- Stats by school -->
+    <div class="stats-col">
+      <h3 class="section-title">Admission Stats by School</h3>
+      {% if school_stats %}
+        {% for s in school_stats %}
+          {% set admit_rate = (s.admitted / s.total * 100)|round|int %}
+          <div class="school-stat-card">
+            <div class="school-stat-top">
+              <strong>{{ s.school_name }}</strong>
+              <span class="stat-count">{{ s.total }} report{{ 's' if s.total != 1 }}</span>
+            </div>
+            <div class="stat-row">
+              <span>Admit rate</span>
+              <span class="{% if admit_rate >= 60 %}prob-high{% elif admit_rate >= 35 %}prob-mid{% else %}prob-low{% endif %}">
+                {{ admit_rate }}%
+              </span>
+            </div>
+            <div class="stat-row">
+              <span>Avg GPA</span>
+              <span>{{ "%.2f"|format(s.avg_gpa) }}</span>
+            </div>
+            <div class="stat-row">
+              <span>Avg credits</span>
+              <span>{{ "%.0f"|format(s.avg_credits) }}</span>
+            </div>
+            <div class="outcome-pills">
+              <span class="pill-admitted">{{ s.admitted }} admitted</span>
+              <span class="pill-denied">{{ s.denied }} denied</span>
+              {% if s.waitlisted %}<span class="pill-waitlisted">{{ s.waitlisted }} waitlisted</span>{% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <p>No community data yet. Be the first to share your outcome!</p>
+        </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Recent reports -->
+  {% if recent %}
+    <h3 class="section-title" style="margin-top:2rem">Recent Reports</h3>
+    <table class="course-table">
+      <thead>
+        <tr>
+          <th>School</th>
+          <th>Major</th>
+          <th>GPA</th>
+          <th>Credits</th>
+          <th>Outcome</th>
+          <th>Year</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in recent %}
+          <tr>
+            <td class="course-name">{{ r.school_name }}</td>
+            <td class="txn-date">{{ r.major or '—' }}</td>
+            <td>{{ "%.2f"|format(r.gpa) }}</td>
+            <td>{{ "%.0f"|format(r.credit_hours) }}</td>
+            <td>
+              <span class="pill-{{ r.outcome }}">{{ r.outcome.capitalize() }}</span>
+            </td>
+            <td class="txn-date">{{ r.year or '—' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+</div>
+{% endblock %}

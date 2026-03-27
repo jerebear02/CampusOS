@@ -1,0 +1,184 @@
+
+/* ═══════════════════════════════════════════════════════
+   PHASE 3 — TRANSFER PLANNER  (append to style.css)
+   ═══════════════════════════════════════════════════════ */
+
+/* ─── Planner layout ─────────────────────────────────── */
+.planner-wrap { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; }
+
+.planner-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1.5rem;
+  align-items: start;
+}
+@media (max-width: 820px) { .planner-grid { grid-template-columns: 1fr; } }
+
+.planner-main  { display: flex; flex-direction: column; gap: .5rem; }
+.planner-sidebar { display: flex; flex-direction: column; gap: 1rem; }
+
+/* ─── GPA banner ─────────────────────────────────────── */
+.gpa-banner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+@media (max-width: 600px) { .gpa-banner { grid-template-columns: 1fr 1fr; } }
+
+.gpa-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.3rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+.gpa-label { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--ink-faint); }
+.gpa-value { font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: var(--ink); }
+.gpa-high { color: var(--accent); }
+.gpa-mid  { color: var(--gold); }
+.gpa-low  { color: var(--danger); }
+
+/* ─── Course table ───────────────────────────────────── */
+.course-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  font-size: .88rem;
+  margin-bottom: .5rem;
+}
+.course-table thead th {
+  background: #f4f7fc;
+  padding: .6rem .9rem;
+  text-align: left;
+  font-size: .76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--ink-faint);
+  border-bottom: 1px solid var(--border);
+}
+.course-table tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+.course-table tbody tr:last-child { border-bottom: none; }
+.course-table tbody tr:hover { background: #fafaf8; }
+.course-table td { padding: .65rem .9rem; vertical-align: middle; }
+.course-name { font-weight: 500; }
+
+.grade-badge {
+  display: inline-block;
+  border-radius: 6px;
+  padding: .15rem .55rem;
+  font-size: .8rem;
+  font-weight: 700;
+}
+.grade-A { background: #d8f3dc; color: #1b4332; }
+.grade-B { background: #dbeafe; color: #1e3a8a; }
+.grade-C { background: #fef9c3; color: #713f12; }
+.grade-D { background: #fee2e2; color: #7f1d1d; }
+.grade-F { background: #fecaca; color: #991b1b; }
+
+/* ─── Target school sidebar ──────────────────────────── */
+.add-school-form {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+.add-school-form input {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: .55rem .8rem;
+  font-size: .88rem;
+  font-family: inherit;
+  color: var(--ink);
+  background: var(--bg);
+  width: 100%;
+}
+.add-school-form input:focus { outline: none; border-color: var(--accent); background: #fff; }
+
+.school-list { display: flex; flex-direction: column; gap: .85rem; }
+
+.school-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+.school-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: .3rem; }
+.school-major   { font-size: .82rem; color: var(--ink-soft); margin-bottom: .2rem; }
+.school-deadline { font-size: .8rem; color: var(--ink-faint); margin-bottom: .5rem; }
+
+/* ─── AI probability bar ─────────────────────────────── */
+.prob-bar-wrap { margin-top: .75rem; }
+.prob-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: .82rem;
+  color: var(--ink-soft);
+  margin-bottom: .3rem;
+}
+.prob-pct { font-weight: 700; }
+.prob-high { color: var(--accent); }
+.prob-mid  { color: var(--gold); }
+.prob-low  { color: var(--danger); }
+.prob-note { font-size: .76rem; color: var(--ink-faint); margin-top: .3rem; }
+
+.fill-high { background: var(--accent); }
+.fill-mid  { background: var(--gold); }
+.fill-low  { background: var(--danger); }
+
+/* ─── Community page ─────────────────────────────────── */
+.community-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 2rem;
+  align-items: start;
+  margin-bottom: 2rem;
+}
+@media (max-width: 820px) { .community-grid { grid-template-columns: 1fr; } }
+
+.share-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  box-shadow: var(--shadow);
+}
+.share-card h3 { font-size: 1.05rem; margin-bottom: 1.1rem; }
+
+.school-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  margin-bottom: .85rem;
+  box-shadow: var(--shadow);
+}
+.school-stat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .6rem;
+}
+.stat-count { font-size: .78rem; color: var(--ink-faint); }
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: .85rem;
+  color: var(--ink-soft);
+  padding: .2rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.stat-row:last-of-type { border-bottom: none; }
+
+.outcome-pills { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .65rem; }
+.pill-admitted   { background: #d8f3dc; color: #1b4332; border-radius: 99px; padding: .15rem .6rem; font-size: .75rem; font-weight: 600; }
+.pill-denied     { background: #fee2e2; color: #991b1b; border-radius: 99px; padding: .15rem .6rem; font-size: .75rem; font-weight: 600; }
+.pill-waitlisted { background: #fef9c3; color: #713f12; border-radius: 99px; padding: .15rem .6rem; font-size: .75rem; font-weight: 600; }
