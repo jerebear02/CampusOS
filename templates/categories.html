@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block title %}Categories — CampusOS{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card" style="max-width:520px">
+    <h2>Spending Categories</h2>
+    <p class="auth-sub">Organize your transactions into categories</p>
+
+    <form method="POST" action="{{ url_for('manage_categories') }}" style="margin-bottom:1.5rem">
+      <div class="form-group">
+        <label>Category name</label>
+        <input type="text" name="name" placeholder="e.g. Food, Rent, Transport…" required />
+      </div>
+      <div class="form-group">
+        <label>Color</label>
+        <input type="color" name="color" value="#2d6a4f" style="width:60px;height:36px;border-radius:6px;border:1.5px solid var(--border);cursor:pointer" />
+      </div>
+      <button type="submit" class="btn-primary">Add category</button>
+    </form>
+
+    {% if categories %}
+      <ul class="cat-list">
+        {% for c in categories %}
+          <li class="cat-item">
+            <div style="display:flex;align-items:center;gap:.6rem">
+              <span class="cat-dot" style="background:{{ c.color }}"></span>
+              <span>{{ c.name }}</span>
+            </div>
+            <form method="POST" action="{{ url_for('delete_category', cat_id=c.id) }}">
+              <button type="submit" class="btn-delete" onclick="return confirm('Delete category?')">✕</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty-hint">No categories yet. Add one above.</p>
+    {% endif %}
+
+    <a href="{{ url_for('budget') }}" class="btn-ghost btn-block" style="margin-top:1.25rem">← Back to Budget</a>
+  </div>
+</div>
+{% endblock %}

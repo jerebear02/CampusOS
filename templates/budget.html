@@ -1,0 +1,152 @@
+{% extends "layout.html" %}
+{% block title %}Budget — CampusOS{% endblock %}
+
+{% block content %}
+<div class="budget-wrap">
+
+  <div class="budget-header">
+    <h2>Budget Buddy</h2>
+    <div class="budget-header-actions">
+      <a href="{{ url_for('manage_categories') }}" class="btn-ghost">Categories</a>
+      <a href="{{ url_for('goals') }}" class="btn-ghost">Goals</a>
+      <a href="{{ url_for('add_transaction') }}" class="btn-primary">+ Transaction</a>
+    </div>
+  </div>
+
+  <!-- AI Anomaly warnings -->
+  {% if anomalies %}
+    <div class="anomaly-block">
+      <div class="anomaly-title">🧠 AI Spending Alerts</div>
+      {% for a in anomalies %}
+        <p>{{ a|safe }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Summary cards -->
+  <div class="budget-summary">
+    <div class="summary-card income-card">
+      <span class="summary-label">Total Income</span>
+      <span class="summary-amount">${{ "%.2f"|format(income) }}</span>
+    </div>
+    <div class="summary-card expense-card">
+      <span class="summary-label">Total Expenses</span>
+      <span class="summary-amount">${{ "%.2f"|format(expense) }}</span>
+    </div>
+    <div class="summary-card balance-card {% if balance >= 0 %}positive{% else %}negative{% endif %}">
+      <span class="summary-label">Balance</span>
+      <span class="summary-amount">${{ "%.2f"|format(balance) }}</span>
+    </div>
+  </div>
+
+  <div class="budget-grid">
+
+    <!-- Transactions -->
+    <div class="budget-main">
+      <h3 class="section-title">Recent Transactions</h3>
+      {% if recent %}
+        <table class="txn-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Amount</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in recent %}
+              <tr class="txn-row {{ t.type }}">
+                <td class="txn-date">{{ t.date }}</td>
+                <td class="txn-title">
+                  {{ t.title }}
+                  {% if t.note %}<span class="txn-note">{{ t.note }}</span>{% endif %}
+                </td>
+                <td>
+                  {% if t.cat_name %}
+                    <span class="cat-badge" style="background:{{ t.cat_color }}22; color:{{ t.cat_color }}; border-color:{{ t.cat_color }}44">{{ t.cat_name }}</span>
+                  {% else %}
+                    <span class="cat-badge-empty">—</span>
+                  {% endif %}
+                </td>
+                <td class="txn-amount {{ t.type }}">
+                  {{ '+' if t.type == 'income' else '-' }}${{ "%.2f"|format(t.amount) }}
+                </td>
+                <td>
+                  <form method="POST" action="{{ url_for('delete_transaction', txn_id=t.id) }}">
+                    <button type="submit" class="btn-delete" onclick="return confirm('Delete this transaction?')">✕</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty-state">
+          <p>No transactions yet.</p>
+          <a href="{{ url_for('add_transaction') }}" class="btn-primary">Add your first transaction</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Sidebar: chart + goals -->
+    <div class="budget-sidebar">
+
+      <!-- Spending by category -->
+      {% if by_cat %}
+        <div class="chart-card">
+          <h3 class="section-title">Spending by Category</h3>
+          <canvas id="catChart" height="220"></canvas>
+        </div>
+      {% endif %}
+
+      <!-- Goals preview -->
+      {% if goals %}
+        <div class="goals-preview">
+          <div class="goals-preview-header">
+            <h3 class="section-title">Savings Goals</h3>
+            <a href="{{ url_for('goals') }}" class="view-all">View all →</a>
+          </div>
+          {% for g in goals[:3] %}
+            {% set pct = [(g.saved_amount / g.target_amount * 100), 100]|min %}
+            <div class="goal-mini">
+              <div class="goal-mini-top">
+                <span class="goal-mini-name">{{ g.name }}</span>
+                <span class="goal-mini-amt">${{ "%.0f"|format(g.saved_amount) }} / ${{ "%.0f"|format(g.target_amount) }}</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:{{ pct }}%"></div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+{% if by_cat %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+  const ctx = document.getElementById('catChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: {{ by_cat|map(attribute='cat')|list|tojson }},
+      datasets: [{
+        data: {{ by_cat|map(attribute='total')|list|tojson }},
+        backgroundColor: {{ by_cat|map(attribute='color')|list|tojson }},
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    },
+    options: {
+      plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans' }, padding: 12 } } },
+      cutout: '65%'
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}
