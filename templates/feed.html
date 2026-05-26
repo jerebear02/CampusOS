@@ -31,8 +31,16 @@
       <h2>Skill Feed</h2>
       <form method="GET" action="{{ url_for('feed') }}" class="search-form">
         <input type="text" name="q" value="{{ query }}" placeholder="Search skills… e.g. Python, calculus" />
+        {% if schools %}
+          <select name="school" class="filter-select">
+            <option value="">All schools</option>
+            {% for s in schools %}
+              <option value="{{ s }}" {% if s == school_filter %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        {% endif %}
         <button type="submit" class="btn-primary">Search</button>
-        {% if query %}<a href="{{ url_for('feed') }}" class="btn-ghost">Clear</a>{% endif %}
+        {% if query or school_filter %}<a href="{{ url_for('feed') }}" class="btn-ghost">Clear</a>{% endif %}
       </form>
     </div>
 
@@ -41,6 +49,14 @@
         🧠 AI-ranked results for "<strong>{{ query }}</strong>"
         {% if not ai_available %} <em>(install scikit-learn for AI ranking)</em>{% endif %}
       </div>
+    {% endif %}
+
+    {% if total %}
+      <p class="feed-count">
+        Showing <strong>{{ showing_from }}–{{ showing_to }}</strong> of {{ total }} skill{{ 's' if total != 1 }}
+        {% if school_filter %} at <strong>{{ school_filter }}</strong>{% endif %}
+        {% if query %} matching "<strong>{{ query }}</strong>"{% endif %}
+      </p>
     {% endif %}
 
     {% if skills %}
@@ -64,10 +80,34 @@
           </div>
         {% endfor %}
       </div>
+
+      {% if total_pages > 1 %}
+        <nav class="pager">
+          {% if page > 1 %}
+            <a class="btn-ghost" href="{{ url_for('feed', q=query, school=school_filter, page=page-1) }}">← Prev</a>
+          {% else %}
+            <span class="btn-ghost pager-disabled">← Prev</span>
+          {% endif %}
+          <span class="pager-info">Page {{ page }} of {{ total_pages }}</span>
+          {% if page < total_pages %}
+            <a class="btn-ghost" href="{{ url_for('feed', q=query, school=school_filter, page=page+1) }}">Next →</a>
+          {% else %}
+            <span class="btn-ghost pager-disabled">Next →</span>
+          {% endif %}
+        </nav>
+      {% endif %}
     {% else %}
       <div class="empty-state">
-        <p>No skills posted yet{% if query %} matching "{{ query }}"{% endif %}.</p>
-        <a href="{{ url_for('add_skill') }}" class="btn-primary">Be the first — add a skill</a>
+        <p>
+          No skills found
+          {% if query %} matching "{{ query }}"{% endif %}
+          {% if school_filter %} at {{ school_filter }}{% endif %}.
+        </p>
+        {% if query or school_filter %}
+          <a href="{{ url_for('feed') }}" class="btn-ghost">Clear filters</a>
+        {% else %}
+          <a href="{{ url_for('add_skill') }}" class="btn-primary">Be the first — add a skill</a>
+        {% endif %}
       </div>
     {% endif %}
   </div>

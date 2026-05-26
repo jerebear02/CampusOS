@@ -10,18 +10,18 @@
     <form method="POST" action="{{ url_for('add_skill') }}">
       <div class="form-group">
         <label>Skill name</label>
-        <input type="text" name="name" placeholder="e.g. Python, Linear Algebra, Guitar…" required />
+        <input type="text" name="name" placeholder="e.g. Python, Linear Algebra, Guitar…" required value="{{ form.name or '' }}" />
       </div>
 
       <div class="form-group">
         <label>Type</label>
         <div class="type-toggle">
           <label class="type-option">
-            <input type="radio" name="type" value="teach" checked />
+            <input type="radio" name="type" value="teach" {% if form.type != 'learn' %}checked{% endif %} />
             <span>🎓 I can teach this</span>
           </label>
           <label class="type-option">
-            <input type="radio" name="type" value="learn" />
+            <input type="radio" name="type" value="learn" {% if form.type == 'learn' %}checked{% endif %} />
             <span>📚 I want to learn this</span>
           </label>
         </div>
@@ -29,7 +29,7 @@
 
       <div class="form-group">
         <label>Description <span class="optional">(optional — helps AI matching)</span></label>
-        <textarea name="description" rows="3" placeholder="e.g. I've taken CS50, I can help with pointers, recursion, and data structures…"></textarea>
+        <textarea name="description" rows="3" placeholder="e.g. I've taken CS50, I can help with pointers, recursion, and data structures…">{{ form.description or '' }}</textarea>
       </div>
 
       <button type="submit" class="btn-primary btn-block">Add skill</button>

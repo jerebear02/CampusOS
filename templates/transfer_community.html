@@ -22,44 +22,44 @@
       <form method="POST" action="{{ url_for('transfer_community') }}">
         <div class="form-group">
           <label>School name</label>
-          <input type="text" name="school_name" placeholder="e.g. Georgia Tech, UT Austin…" required />
+          <input type="text" name="school_name" placeholder="e.g. Georgia Tech, UT Austin…" required value="{{ form.school_name or '' }}" />
         </div>
         <div class="form-group">
           <label>Major <span class="optional">(optional)</span></label>
-          <input type="text" name="major" placeholder="e.g. Computer Science" />
+          <input type="text" name="major" placeholder="e.g. Computer Science" value="{{ form.major or '' }}" />
         </div>
         <div class="form-group">
           <label>GPA at time of application</label>
-          <input type="number" name="gpa" placeholder="3.75" step="0.01" min="0" max="4" required />
+          <input type="number" name="gpa" placeholder="3.75" step="0.01" min="0" max="4" required value="{{ form.gpa or '' }}" />
         </div>
         <div class="form-group">
           <label>Credit hours completed</label>
-          <input type="number" name="credit_hours" placeholder="60" step="0.5" min="0" required />
+          <input type="number" name="credit_hours" placeholder="60" step="0.5" min="0" required value="{{ form.credit_hours or '' }}" />
         </div>
         <div class="form-group">
           <label>Outcome</label>
           <div class="type-toggle">
             <label class="type-option">
-              <input type="radio" name="outcome" value="admitted" checked />
+              <input type="radio" name="outcome" value="admitted" {% if (form.outcome or 'admitted') == 'admitted' %}checked{% endif %} />
               <span>✅ Admitted</span>
             </label>
             <label class="type-option">
-              <input type="radio" name="outcome" value="denied" />
+              <input type="radio" name="outcome" value="denied" {% if form.outcome == 'denied' %}checked{% endif %} />
               <span>❌ Denied</span>
             </label>
             <label class="type-option">
-              <input type="radio" name="outcome" value="waitlisted" />
+              <input type="radio" name="outcome" value="waitlisted" {% if form.outcome == 'waitlisted' %}checked{% endif %} />
               <span>⏳ Waitlisted</span>
             </label>
           </div>
         </div>
         <div class="form-group">
           <label>Year <span class="optional">(optional)</span></label>
-          <input type="number" name="year" placeholder="2024" min="2010" max="2030" />
+          <input type="number" name="year" placeholder="2024" min="2010" max="2030" value="{{ form.year or '' }}" />
         </div>
         <div class="form-group">
           <label>Notes <span class="optional">(optional)</span></label>
-          <textarea name="notes" rows="2" placeholder="Any context that might help others…"></textarea>
+          <textarea name="notes" rows="2" placeholder="Any context that might help others…">{{ form.notes or '' }}</textarea>
         </div>
         <button type="submit" class="btn-primary btn-block">Share outcome</button>
       </form>

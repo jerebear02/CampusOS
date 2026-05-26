@@ -27,7 +27,7 @@
             </form>
             <form method="POST" action="{{ url_for('respond_match', match_id=m.id) }}" style="display:inline">
               <input type="hidden" name="action" value="declined" />
-              <button type="submit" class="btn-decline">Decline</button>
+              <button type="submit" class="btn-decline" onclick="return confirm('Decline this match request from {{ m.requester_name }}?')">Decline</button>
             </form>
           </div>
         </div>

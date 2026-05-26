@@ -3,3 +3,4 @@ Flask-Session
 Werkzeug
 scikit-learn
 numpy
+gunicorn

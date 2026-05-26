@@ -131,7 +131,7 @@
               <div class="school-card-top">
                 <strong>{{ s.name }}</strong>
                 <form method="POST" action="{{ url_for('delete_school', school_id=s.id) }}">
-                  <button type="submit" class="btn-delete">✕</button>
+                  <button type="submit" class="btn-delete" onclick="return confirm('Remove {{ s.name }} from your target schools?')">✕</button>
                 </form>
               </div>
               {% if s.major %}<p class="school-major">{{ s.major }}</p>{% endif %}

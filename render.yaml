@@ -1,0 +1,31 @@
+# Render Blueprint — see https://render.com/docs/blueprint-spec
+#
+# Deploy this app by pushing to GitHub, then in Render:
+#   New + → Blueprint → connect this repo → apply.
+#
+# Note: on Render's free plan, instance storage is ephemeral. The SQLite DB
+# is recreated on every restart. seed_demo.py runs at startup so the app
+# always boots with the demo dataset visible. For a real production deploy
+# with persistent data, upgrade to a paid plan and attach a disk (see the
+# commented `disk:` block below), or migrate to Postgres.
+
+services:
+  - type: web
+    name: campusos
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python seed_demo.py && gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 60
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.6
+      - key: SECRET_KEY
+        generateValue: true
+      # Uncomment when on a paid plan with the disk block below:
+      # - key: CAMPUSOS_DB
+      #   value: /var/data/campusos.db
+
+    # disk:
+    #   name: campusos-data
+    #   mountPath: /var/data
+    #   sizeGB: 1

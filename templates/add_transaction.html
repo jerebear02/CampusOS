@@ -13,11 +13,11 @@
         <label>Type</label>
         <div class="type-toggle">
           <label class="type-option">
-            <input type="radio" name="type" value="expense" checked />
+            <input type="radio" name="type" value="expense" {% if form.type != 'income' %}checked{% endif %} />
             <span>💸 Expense</span>
           </label>
           <label class="type-option">
-            <input type="radio" name="type" value="income" />
+            <input type="radio" name="type" value="income" {% if form.type == 'income' %}checked{% endif %} />
             <span>💰 Income</span>
           </label>
         </div>
@@ -25,17 +25,17 @@
 
       <div class="form-group">
         <label>Title</label>
-        <input type="text" name="title" placeholder="e.g. Groceries, Paycheck, Rent…" required />
+        <input type="text" name="title" placeholder="e.g. Groceries, Paycheck, Rent…" required value="{{ form.title or '' }}" />
       </div>
 
       <div class="form-group">
         <label>Amount ($)</label>
-        <input type="number" name="amount" placeholder="0.00" step="0.01" min="0.01" required />
+        <input type="number" name="amount" placeholder="0.00" step="0.01" min="0.01" required value="{{ form.amount or '' }}" />
       </div>
 
       <div class="form-group">
         <label>Date</label>
-        <input type="date" name="date" value="{{ today }}" required />
+        <input type="date" name="date" value="{{ form.date or today }}" required />
       </div>
 
       <div class="form-group">
@@ -43,7 +43,7 @@
         <select name="category_id">
           <option value="">— No category —</option>
           {% for c in categories %}
-            <option value="{{ c.id }}">{{ c.name }}</option>
+            <option value="{{ c.id }}" {% if form.category_id and form.category_id|string == c.id|string %}selected{% endif %}>{{ c.name }}</option>
           {% endfor %}
         </select>
         <a href="{{ url_for('manage_categories') }}" style="font-size:.8rem; margin-top:.3rem; display:inline-block">+ Manage categories</a>
@@ -51,7 +51,7 @@
 
       <div class="form-group">
         <label>Note <span class="optional">(optional)</span></label>
-        <input type="text" name="note" placeholder="Optional note…" />
+        <input type="text" name="note" placeholder="Optional note…" value="{{ form.note or '' }}" />
       </div>
 
       <button type="submit" class="btn-primary btn-block">Add transaction</button>

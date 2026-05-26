@@ -112,6 +112,27 @@ python app.py
 
 The database is created automatically on first run.
 
+To populate the app with sample users, skills, matches, and dashboards so it doesn't look empty:
+
+```bash
+python seed_demo.py            # idempotent — safe to run anytime
+python seed_demo.py --reset    # wipe demo users and reseed
+```
+
+All seeded users share the password `demo1234`. The user `alex_demo` has the most populated Budget and Planner dashboards.
+
+---
+
+## Deploy (Render)
+
+This repo includes a `render.yaml` Blueprint. To deploy:
+
+1. Push the repo to GitHub
+2. In Render, click **New + → Blueprint** and connect the repo
+3. Apply — Render reads `render.yaml`, sets a random `SECRET_KEY`, runs the seed script, and starts the app under gunicorn
+
+On Render's free plan, instance storage is ephemeral — the SQLite DB is recreated on every restart, so the seed script runs at startup to keep the app populated. For real persistent data, upgrade to a paid plan and uncomment the `disk:` block in `render.yaml` (or migrate to Postgres).
+
 ---
 
 ## Author
