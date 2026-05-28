@@ -41,26 +41,38 @@ USERS = [
 SKILLS = [
     ("alex_demo", "teach", "Python",            "Comfortable with CS50 material — pointers, recursion, basic algorithms."),
     ("alex_demo", "teach", "Intro to Flask",    "Can walk you through building a small Flask app from scratch."),
+    ("alex_demo", "teach", "Git & GitHub",      "Branching, merging, resolving conflicts, PR workflow."),
+    ("alex_demo", "teach", "Debugging",         "Reading stack traces, using pdb, isolating tricky bugs."),
     ("alex_demo", "learn", "Linear Algebra",    "Need help with eigenvalues and matrix decomposition for ML class."),
 
     ("maya_demo", "teach", "Calculus I & II",   "Years of tutoring experience. Can help with limits, derivatives, integrals, series."),
     ("maya_demo", "teach", "Microeconomics",    "Intro through intermediate level. Good with consumer/producer theory."),
+    ("maya_demo", "teach", "Statistics",        "Probability, hypothesis testing, confidence intervals — comfortable up to intro inference."),
+    ("maya_demo", "teach", "Excel for analytics", "Pivot tables, VLOOKUP/XLOOKUP, basic dashboards."),
     ("maya_demo", "learn", "Conversational Spanish", "Want a partner for weekly 30-min chats."),
 
     ("jordan_demo", "teach", "Piano (beginner-intermediate)", "Classical and pop. Patient with absolute beginners."),
     ("jordan_demo", "teach", "Music theory",    "Diatonic harmony, voice leading, basic counterpoint."),
+    ("jordan_demo", "teach", "Ear training",    "Interval recognition, chord quality, simple melodic dictation."),
+    ("jordan_demo", "teach", "Sight reading",   "Strategies for reading new music confidently at tempo."),
     ("jordan_demo", "learn", "Statistics",      "Struggling with hypothesis testing in research methods class."),
 
     ("priya_demo", "teach", "Organic chemistry","Mechanisms, retrosynthesis, study strategies for the dreaded orgo final."),
     ("priya_demo", "teach", "Study habits",     "Spaced repetition + active recall coaching."),
+    ("priya_demo", "teach", "Anatomy & physiology", "Systems-based review with mnemonics — happy to quiz you."),
+    ("priya_demo", "teach", "MCAT prep strategy", "Schedule planning, content review approach, full-length pacing."),
     ("priya_demo", "learn", "MCAT verbal",      "Looking for a practice partner to review CARS passages."),
 
     ("sam_demo",   "teach", "HTML/CSS",         "Layout, flexbox, grid. Built a few small portfolio sites."),
     ("sam_demo",   "teach", "JavaScript basics","Variables, functions, DOM, fetch. Up to intro React."),
+    ("sam_demo",   "teach", "Portfolio sites",  "From zero to a deployed personal site on Netlify or GitHub Pages."),
+    ("sam_demo",   "teach", "Resume review (CS)", "Targeted feedback for tech internships and entry-level roles."),
     ("sam_demo",   "learn", "Data structures",  "Cracking the coding interview prep — arrays, hashmaps, trees."),
 
     ("riley_demo", "teach", "Essay editing",    "Application essays, lit analysis, research papers."),
     ("riley_demo", "teach", "Grammar coaching", "ESL-friendly. Will explain *why* something reads wrong."),
+    ("riley_demo", "teach", "Personal statements", "Brainstorming, structure, voice — for transfer and grad apps."),
+    ("riley_demo", "teach", "Citations (APA/MLA)", "In-text citations, works cited pages, common pitfalls."),
     ("riley_demo", "learn", "Public speaking",  "Want to practice for class presentations."),
 ]
 
