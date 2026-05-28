@@ -28,13 +28,13 @@ SEED_MARKER_USERNAME = "alex_demo"
 # ─── Demo content ────────────────────────────────────────────────────────────
 
 USERS = [
-    # (username, email, school, bio)
-    ("alex_demo",   "alex@demo.edu",    "Snow College",          "CS major, love teaching intro programming and debugging."),
-    ("maya_demo",   "maya@demo.edu",    "Georgia Tech",          "Math + econ double major. Calc tutor, looking to pick up Spanish."),
-    ("jordan_demo", "jordan@demo.edu",  "UT Austin",             "Music performance student. Piano lessons traded for help with stats."),
-    ("priya_demo",  "priya@demo.edu",   "UC San Diego",          "Bio pre-med. Strong in chemistry and study habits."),
-    ("sam_demo",    "sam@demo.edu",     "Community College of Denver", "Transfer student aiming for CU Boulder CS. Self-taught web dev."),
-    ("riley_demo",  "riley@demo.edu",   "Northern Virginia CC",  "English & writing tutor. Editing essays since high school."),
+    # (username, email, school, bio, avatar_color)
+    ("alex_demo",   "alex@demo.edu",    "Snow College",          "CS major, love teaching intro programming and debugging.", "#2d6a4f"),
+    ("maya_demo",   "maya@demo.edu",    "Georgia Tech",          "Math + econ double major. Calc tutor, looking to pick up Spanish.", "#1d4ed8"),
+    ("jordan_demo", "jordan@demo.edu",  "UT Austin",             "Music performance student. Piano lessons traded for help with stats.", "#7c3aed"),
+    ("priya_demo",  "priya@demo.edu",   "UC San Diego",          "Bio pre-med. Strong in chemistry and study habits.", "#db2777"),
+    ("sam_demo",    "sam@demo.edu",     "Community College of Denver", "Transfer student aiming for CU Boulder CS. Self-taught web dev.", "#0891b2"),
+    ("riley_demo",  "riley@demo.edu",   "Northern Virginia CC",  "English & writing tutor. Editing essays since high school.", "#ea580c"),
 ]
 
 # (username, type, name, description)
@@ -197,6 +197,10 @@ def ensure_schema(conn):
         sys.exit(f"Could not find {SCHEMA}. Run from the project root.")
     with open(SCHEMA, encoding="utf-8") as f:
         conn.executescript(f.read())
+    # Idempotent migration for DBs that predate the avatar_color column.
+    user_cols = {r["name"] for r in conn.execute("PRAGMA table_info(users)").fetchall()}
+    if "avatar_color" not in user_cols:
+        conn.execute("ALTER TABLE users ADD COLUMN avatar_color TEXT")
     conn.commit()
 
 
@@ -231,11 +235,11 @@ def seed(conn):
 
     # Users -----------------------------------------------------------------
     user_ids = {}
-    for username, email, school, bio in USERS:
+    for username, email, school, bio, avatar_color in USERS:
         cur = conn.execute(
-            "INSERT INTO users (username, email, password_hash, school, bio) "
-            "VALUES (?, ?, ?, ?, ?)",
-            (username, email, pw_hash, school, bio)
+            "INSERT INTO users (username, email, password_hash, school, bio, avatar_color) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (username, email, pw_hash, school, bio, avatar_color)
         )
         user_ids[username] = cur.lastrowid
 

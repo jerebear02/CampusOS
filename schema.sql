@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     school TEXT,
     bio TEXT,
+    avatar_color TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

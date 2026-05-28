@@ -1,6 +1,7 @@
 import os
 import json
 import math
+import hashlib
 import secrets
 import sqlite3
 from collections import defaultdict
@@ -46,6 +47,54 @@ def init_db():
         conn.close()
 
 
+def migrate_db():
+    """Idempotent ALTER TABLE migrations for databases predating new columns."""
+    conn = get_db()
+    user_cols = {r["name"] for r in conn.execute("PRAGMA table_info(users)").fetchall()}
+    if "avatar_color" not in user_cols:
+        conn.execute("ALTER TABLE users ADD COLUMN avatar_color TEXT")
+        conn.commit()
+    conn.close()
+
+
+# ─── Avatar colors ───────────────────────────────────────────────────────────
+
+# Palette designed for white text on a filled circle. All have decent contrast.
+AVATAR_PALETTE = [
+    "#2d6a4f",  # green (app accent)
+    "#1d4ed8",  # blue
+    "#7c3aed",  # purple
+    "#dc2626",  # red
+    "#b5843a",  # gold
+    "#0891b2",  # teal
+    "#db2777",  # pink
+    "#65a30d",  # lime
+    "#ea580c",  # orange
+    "#475569",  # slate
+]
+
+
+def avatar_color_for(user):
+    """Return the user's chosen avatar color, or a stable palette pick keyed
+    off their username so existing users get a distinct color without a backfill.
+    `user` can be a sqlite3.Row, dict, or anything with .get / [] access.
+    """
+    if user is None:
+        return AVATAR_PALETTE[0]
+    try:
+        stored = user["avatar_color"]
+    except (KeyError, IndexError):
+        stored = None
+    if stored:
+        return stored
+    try:
+        name = user["username"]
+    except (KeyError, IndexError):
+        return AVATAR_PALETTE[0]
+    h = int(hashlib.md5(name.encode("utf-8")).hexdigest()[:8], 16)
+    return AVATAR_PALETTE[h % len(AVATAR_PALETTE)]
+
+
 # ─── Auth decorator ──────────────────────────────────────────────────────────
 
 def login_required(f):
@@ -60,18 +109,25 @@ def login_required(f):
 # ─── Template globals ────────────────────────────────────────────────────────
 
 @app.context_processor
-def inject_nav_badges():
-    """Expose pending incoming match count to every template (for the navbar badge)."""
+def inject_nav_globals():
+    """Expose per-request globals to all templates: pending incoming match
+    count (for the navbar badge) and the logged-in user's avatar color."""
     user_id = session.get("user_id")
     if not user_id:
-        return {"pending_match_count": 0}
+        return {"pending_match_count": 0, "session_avatar_color": None}
     db = get_db()
     row = db.execute(
         "SELECT COUNT(*) AS n FROM matches WHERE receiver_id = ? AND status = 'pending'",
         (user_id,)
     ).fetchone()
+    user = db.execute(
+        "SELECT username, avatar_color FROM users WHERE id = ?", (user_id,)
+    ).fetchone()
     db.close()
-    return {"pending_match_count": row["n"] if row else 0}
+    return {
+        "pending_match_count": row["n"] if row else 0,
+        "session_avatar_color": avatar_color_for(user) if user else None,
+    }
 
 
 # ─── AI: Skill Match Ranker ──────────────────────────────────────────────────
@@ -106,13 +162,20 @@ def index():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        username = request.form.get("username", "").strip()
-        email    = request.form.get("email", "").strip()
-        password = request.form.get("password", "")
-        school   = request.form.get("school", "").strip()
-        bio      = request.form.get("bio", "").strip()
+        username     = request.form.get("username", "").strip()
+        email        = request.form.get("email", "").strip()
+        password     = request.form.get("password", "")
+        school       = request.form.get("school", "").strip()
+        bio          = request.form.get("bio", "").strip()
+        avatar_color = request.form.get("avatar_color", "").strip()
+        # Only accept palette colors — anything else falls back to default pick.
+        if avatar_color not in AVATAR_PALETTE:
+            avatar_color = ""
 
-        form_data = {"username": username, "email": email, "school": school, "bio": bio}
+        form_data = {
+            "username": username, "email": email, "school": school,
+            "bio": bio, "avatar_color": avatar_color or AVATAR_PALETTE[0],
+        }
 
         if not username or not email or not password:
             flash("Username, email, and password are required.", "error")
@@ -130,8 +193,9 @@ def register():
 
         pw_hash = generate_password_hash(password)
         db.execute(
-            "INSERT INTO users (username, email, password_hash, school, bio) VALUES (?, ?, ?, ?, ?)",
-            (username, email, pw_hash, school, bio)
+            "INSERT INTO users (username, email, password_hash, school, bio, avatar_color) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (username, email, pw_hash, school, bio, avatar_color or None)
         )
         db.commit()
         user = db.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
@@ -142,7 +206,7 @@ def register():
         flash(f"Welcome to CampusOS, {username}!", "success")
         return redirect(url_for("feed"))
 
-    return render_template("register.html", form={})
+    return render_template("register.html", form={"avatar_color": AVATAR_PALETTE[0]})
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -193,7 +257,7 @@ def feed():
 
     # Build the skills query with optional school filter applied at SQL level.
     sql = """
-        SELECT s.*, u.username, u.school, u.bio
+        SELECT s.*, u.username, u.school, u.bio, u.avatar_color
         FROM skills s
         JOIN users u ON s.user_id = u.id
         WHERE s.type = 'teach' AND s.user_id != ?
@@ -341,6 +405,26 @@ def profile(username):
                            learn_skills=learn_skills,
                            is_own_profile=is_own_profile,
                            pending_match_ids=pending_match_ids)
+
+
+# ── Profile color ─────────────────────────────────────────────────────────────
+
+@app.route("/profile/color", methods=["POST"])
+@login_required
+def update_avatar_color():
+    color = request.form.get("avatar_color", "").strip()
+    if color not in AVATAR_PALETTE:
+        flash("Invalid color.", "error")
+        return redirect(url_for("profile", username=session["username"]))
+    db = get_db()
+    db.execute(
+        "UPDATE users SET avatar_color = ? WHERE id = ?",
+        (color, session["user_id"])
+    )
+    db.commit()
+    db.close()
+    flash("Avatar color updated.", "success")
+    return redirect(url_for("profile", username=session["username"]))
 
 
 # ── Matches ───────────────────────────────────────────────────────────────────
@@ -1005,10 +1089,16 @@ def transfer_community():
 # ─── Bootstrap ───────────────────────────────────────────────────────────────
 
 # Init the DB on import so the schema exists under gunicorn too (not just
-# when running `python app.py`). CREATE TABLE IF NOT EXISTS makes this safe
-# to call every boot.
+# when running `python app.py`). CREATE TABLE IF NOT EXISTS makes init_db
+# safe to call every boot; migrate_db is also idempotent.
 if not os.path.exists(DB_PATH):
     init_db()
+migrate_db()
+
+# Expose avatar helper + palette to Jinja so templates can render colors
+# without each route having to pass them in.
+app.jinja_env.globals["avatar_color_for"] = avatar_color_for
+app.jinja_env.globals["AVATAR_PALETTE"] = AVATAR_PALETTE
 
 
 if __name__ == "__main__":

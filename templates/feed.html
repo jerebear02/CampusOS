@@ -64,7 +64,7 @@
         {% for skill in skills %}
           <div class="skill-card">
             <div class="skill-card-top">
-              <div class="skill-avatar">{{ skill.username[0].upper() }}</div>
+              <div class="skill-avatar" style="background:{{ avatar_color_for(skill) }}; color:#fff">{{ skill.username[0].upper() }}</div>
               <div>
                 <a href="{{ url_for('profile', username=skill.username) }}" class="skill-user">{{ skill.username }}</a>
                 {% if skill.school %}<span class="skill-school">{{ skill.school }}</span>{% endif %}

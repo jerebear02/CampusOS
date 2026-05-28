@@ -71,6 +71,49 @@ img { max-width: 100%; }
   font-size: .85rem;
 }
 .nav-with-badge { display: inline-flex; align-items: center; gap: .35rem; }
+
+/* Avatar circles get their bg color from inline style, but text stays white
+   regardless of which palette color is picked. */
+.nav-avatar, .skill-avatar, .profile-avatar-lg { color: #fff; }
+
+/* Color picker swatches — used on register and own-profile */
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  align-items: center;
+  margin-top: .75rem;
+}
+.color-picker-label {
+  font-size: .82rem;
+  color: var(--ink-soft);
+  font-weight: 600;
+  margin-right: .2rem;
+}
+.swatch-btn {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: transform .1s, border-color .15s;
+}
+.swatch-btn:hover { transform: scale(1.12); }
+.swatch-active { border-color: var(--ink); box-shadow: 0 0 0 2px #fff inset; }
+
+/* Radio-based swatch on the register form: hide the radio, style the span */
+.swatch-radio { display: inline-flex; cursor: pointer; }
+.swatch-radio input[type=radio] { position: absolute; opacity: 0; pointer-events: none; }
+.swatch-radio:has(input:checked) .swatch-btn {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 2px #fff inset;
+}
+.color-picker-register { margin-top: 0; }
+
+.profile-actions { margin-bottom: .5rem; }
+
 .nav-badge {
   background: #1d4ed8;
   color: #fff;

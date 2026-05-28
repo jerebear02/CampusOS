@@ -28,6 +28,18 @@
         <label>Bio <span class="optional">(optional)</span></label>
         <textarea name="bio" rows="2" placeholder="CS major, love tutoring math…">{{ form.bio or '' }}</textarea>
       </div>
+      <div class="form-group">
+        <label>Avatar color</label>
+        <div class="color-picker color-picker-register">
+          {% for c in AVATAR_PALETTE %}
+            <label class="swatch-radio">
+              <input type="radio" name="avatar_color" value="{{ c }}"
+                     {% if c == (form.avatar_color or AVATAR_PALETTE[0]) %}checked{% endif %} />
+              <span class="swatch-btn" style="background:{{ c }}"></span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
       <button type="submit" class="btn-primary btn-block">Create account</button>
     </form>
 

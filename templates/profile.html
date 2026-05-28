@@ -4,14 +4,27 @@
 {% block content %}
 <div class="profile-wrap">
 
+  {% set user_color = avatar_color_for(user) %}
   <div class="profile-header">
-    <div class="profile-avatar-lg">{{ user.username[0].upper() }}</div>
+    <div class="profile-avatar-lg" style="background:{{ user_color }}">{{ user.username[0].upper() }}</div>
     <div class="profile-meta">
       <h2>{{ user.username }}</h2>
       {% if user.school %}<p class="profile-school">🏫 {{ user.school }}</p>{% endif %}
       {% if user.bio %}<p class="profile-bio">{{ user.bio }}</p>{% endif %}
       {% if is_own_profile %}
-        <a href="{{ url_for('add_skill') }}" class="btn-primary">+ Add skill</a>
+        <div class="profile-actions">
+          <a href="{{ url_for('add_skill') }}" class="btn-primary">+ Add skill</a>
+        </div>
+        <form method="POST" action="{{ url_for('update_avatar_color') }}" class="color-picker">
+          <span class="color-picker-label">Avatar color:</span>
+          {% for c in AVATAR_PALETTE %}
+            <button type="submit" name="avatar_color" value="{{ c }}"
+                    class="swatch-btn {% if c == user_color %}swatch-active{% endif %}"
+                    style="background:{{ c }}"
+                    aria-label="Set avatar color {{ c }}"
+                    title="{{ c }}"></button>
+          {% endfor %}
+        </form>
       {% endif %}
     </div>
   </div>

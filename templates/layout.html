@@ -22,7 +22,7 @@
         </a>
         <a href="{{ url_for('budget') }}">Budget</a>
         <a href="{{ url_for('planner') }}">Planner</a>
-        <a href="{{ url_for('profile', username=session.username) }}" class="nav-avatar">{{ session.username[0].upper() }}</a>
+        <a href="{{ url_for('profile', username=session.username) }}" class="nav-avatar" style="background:{{ session_avatar_color or '#2d6a4f' }}">{{ session.username[0].upper() }}</a>
         <a href="{{ url_for('logout') }}" class="btn-ghost">Log out</a>
       {% else %}
         <a href="{{ url_for('login') }}">Log in</a>
