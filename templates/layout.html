@@ -16,7 +16,10 @@
       {% if session.user_id %}
         <a href="{{ url_for('feed') }}">Feed</a>
         <a href="{{ url_for('add_skill') }}">+ Skill</a>
-        <a href="{{ url_for('matches') }}">Matches</a>
+        <a href="{{ url_for('matches') }}" class="nav-with-badge">
+          Matches
+          {% if pending_match_count %}<span class="nav-badge">{{ pending_match_count }}</span>{% endif %}
+        </a>
         <a href="{{ url_for('budget') }}">Budget</a>
         <a href="{{ url_for('planner') }}">Planner</a>
         <a href="{{ url_for('profile', username=session.username) }}" class="nav-avatar">{{ session.username[0].upper() }}</a>

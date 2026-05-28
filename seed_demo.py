@@ -69,6 +69,10 @@ SKILLS = [
 MATCHES = [
     ("maya_demo",   "alex_demo",   "Python",                       "accepted"),
     ("sam_demo",    "alex_demo",   "Intro to Flask",               "accepted"),
+    # Pending incoming for alex_demo — so the navbar badge appears for the
+    # primary demo user reviewers will log in as.
+    ("jordan_demo", "alex_demo",   "Python",                       "pending"),
+    ("priya_demo",  "alex_demo",   "Intro to Flask",               "pending"),
     ("alex_demo",   "maya_demo",   "Calculus I & II",              "pending"),
     ("jordan_demo", "maya_demo",   "Microeconomics",               "pending"),
     ("priya_demo",  "riley_demo",  "Essay editing",                "accepted"),

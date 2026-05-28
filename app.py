@@ -57,6 +57,23 @@ def login_required(f):
     return decorated
 
 
+# ─── Template globals ────────────────────────────────────────────────────────
+
+@app.context_processor
+def inject_nav_badges():
+    """Expose pending incoming match count to every template (for the navbar badge)."""
+    user_id = session.get("user_id")
+    if not user_id:
+        return {"pending_match_count": 0}
+    db = get_db()
+    row = db.execute(
+        "SELECT COUNT(*) AS n FROM matches WHERE receiver_id = ? AND status = 'pending'",
+        (user_id,)
+    ).fetchone()
+    db.close()
+    return {"pending_match_count": row["n"] if row else 0}
+
+
 # ─── AI: Skill Match Ranker ──────────────────────────────────────────────────
 
 def rank_skills_by_relevance(query, skills):
