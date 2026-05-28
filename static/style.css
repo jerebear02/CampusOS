@@ -578,7 +578,17 @@ main { flex: 1; }
   font-family: 'DM Serif Display', serif;
   font-size: 1.75rem;
 }
-.budget-header-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.budget-header-actions { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+
+.month-picker { margin: 0; }
+.month-picker .filter-select { padding: .5rem .75rem; font-size: .85rem; }
+
+.month-label {
+  font-size: .9rem;
+  color: var(--ink-soft);
+  margin-bottom: 1.25rem;
+}
+.month-label a { font-size: .85rem; }
 
 .anomaly-block {
   background: #fffbeb;

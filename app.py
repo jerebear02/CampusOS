@@ -503,12 +503,40 @@ def get_spending_anomalies(db, user_id):
 @login_required
 def budget():
     db = get_db()
+    user_id = session["user_id"]
 
+    # ── Month filter ─────────────────────────────────────────────────────
+    current_month = date.today().strftime("%Y-%m")
+    selected_month = request.args.get("month", "").strip() or current_month
+    # Defensive: only accept YYYY-MM, otherwise fall back to current month.
+    try:
+        datetime.strptime(selected_month, "%Y-%m")
+    except ValueError:
+        selected_month = current_month
+
+    # All months that have transactions, plus the current month so it's always
+    # selectable even if empty. Ordered newest-first for the dropdown.
+    month_rows = db.execute("""
+        SELECT DISTINCT strftime('%Y-%m', date) AS ym
+        FROM transactions WHERE user_id = ?
+    """, (user_id,)).fetchall()
+    month_set = {r["ym"] for r in month_rows if r["ym"]}
+    month_set.add(current_month)
+    available_months = sorted(month_set, reverse=True)
+    # Human-readable label list: [("2026-05", "May 2026"), ...]
+    months_for_dropdown = [
+        (m, datetime.strptime(m, "%Y-%m").strftime("%B %Y"))
+        for m in available_months
+    ]
+    month_label = datetime.strptime(selected_month, "%Y-%m").strftime("%B %Y")
+
+    # ── Totals / recent / by-category, all scoped to selected month ──────
     totals = db.execute("""
         SELECT type, SUM(amount) as total
-        FROM transactions WHERE user_id = ?
+        FROM transactions
+        WHERE user_id = ? AND strftime('%Y-%m', date) = ?
         GROUP BY type
-    """, (session["user_id"],)).fetchall()
+    """, (user_id, selected_month)).fetchall()
     income  = next((r["total"] for r in totals if r["type"] == "income"),  0) or 0
     expense = next((r["total"] for r in totals if r["type"] == "expense"), 0) or 0
     balance = income - expense
@@ -517,37 +545,44 @@ def budget():
         SELECT t.*, c.name as cat_name, c.color as cat_color
         FROM transactions t
         LEFT JOIN categories c ON t.category_id = c.id
-        WHERE t.user_id = ?
+        WHERE t.user_id = ? AND strftime('%Y-%m', t.date) = ?
         ORDER BY t.date DESC, t.created_at DESC
-        LIMIT 20
-    """, (session["user_id"],)).fetchall()
+        LIMIT 100
+    """, (user_id, selected_month)).fetchall()
 
     by_cat = db.execute("""
         SELECT c.name as cat, c.color, SUM(t.amount) as total
         FROM transactions t
         LEFT JOIN categories c ON t.category_id = c.id
         WHERE t.user_id = ? AND t.type = 'expense'
+              AND strftime('%Y-%m', t.date) = ?
         GROUP BY t.category_id
         ORDER BY total DESC
-    """, (session["user_id"],)).fetchall()
+    """, (user_id, selected_month)).fetchall()
 
+    # Goals are not month-scoped (lifetime saved vs target).
     goals = db.execute(
         "SELECT * FROM goals WHERE user_id = ? ORDER BY created_at DESC",
-        (session["user_id"],)
+        (user_id,)
     ).fetchall()
 
-    anomalies = get_spending_anomalies(db, session["user_id"])
+    # Anomaly alerts ("this week vs your usual") only make sense when viewing
+    # the current month — they'd be confusing on a historical view.
+    anomalies = get_spending_anomalies(db, user_id) if selected_month == current_month else []
 
     categories = db.execute(
         "SELECT * FROM categories WHERE user_id = ? ORDER BY name",
-        (session["user_id"],)
+        (user_id,)
     ).fetchall()
 
     db.close()
     return render_template("budget.html",
         income=income, expense=expense, balance=balance,
         recent=recent, by_cat=by_cat, goals=goals,
-        anomalies=anomalies, categories=categories)
+        anomalies=anomalies, categories=categories,
+        selected_month=selected_month, month_label=month_label,
+        months_for_dropdown=months_for_dropdown,
+        is_current_month=(selected_month == current_month))
 
 
 # ── Add transaction ───────────────────────────────────────────────────────────

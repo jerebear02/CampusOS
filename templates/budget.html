@@ -7,11 +7,25 @@
   <div class="budget-header">
     <h2>Budget Buddy</h2>
     <div class="budget-header-actions">
+      <form method="GET" action="{{ url_for('budget') }}" class="month-picker">
+        <select name="month" onchange="this.form.submit()" class="filter-select" aria-label="Filter by month">
+          {% for ym, label in months_for_dropdown %}
+            <option value="{{ ym }}" {% if ym == selected_month %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </form>
       <a href="{{ url_for('manage_categories') }}" class="btn-ghost">Categories</a>
       <a href="{{ url_for('goals') }}" class="btn-ghost">Goals</a>
       <a href="{{ url_for('add_transaction') }}" class="btn-primary">+ Transaction</a>
     </div>
   </div>
+
+  <p class="month-label">
+    Showing <strong>{{ month_label }}</strong>
+    {% if not is_current_month %}
+      · <a href="{{ url_for('budget') }}">Back to current month</a>
+    {% endif %}
+  </p>
 
   <!-- AI Anomaly warnings -->
   {% if anomalies %}
@@ -26,15 +40,15 @@
   <!-- Summary cards -->
   <div class="budget-summary">
     <div class="summary-card income-card">
-      <span class="summary-label">Total Income</span>
+      <span class="summary-label">Income this month</span>
       <span class="summary-amount">${{ "%.2f"|format(income) }}</span>
     </div>
     <div class="summary-card expense-card">
-      <span class="summary-label">Total Expenses</span>
+      <span class="summary-label">Expenses this month</span>
       <span class="summary-amount">${{ "%.2f"|format(expense) }}</span>
     </div>
     <div class="summary-card balance-card {% if balance >= 0 %}positive{% else %}negative{% endif %}">
-      <span class="summary-label">Balance</span>
+      <span class="summary-label">Net this month</span>
       <span class="summary-amount">${{ "%.2f"|format(balance) }}</span>
     </div>
   </div>
@@ -43,7 +57,7 @@
 
     <!-- Transactions -->
     <div class="budget-main">
-      <h3 class="section-title">Recent Transactions</h3>
+      <h3 class="section-title">Transactions — {{ month_label }}</h3>
       {% if recent %}
         <table class="txn-table">
           <thead>
@@ -84,8 +98,13 @@
         </table>
       {% else %}
         <div class="empty-state">
-          <p>No transactions yet.</p>
-          <a href="{{ url_for('add_transaction') }}" class="btn-primary">Add your first transaction</a>
+          {% if is_current_month %}
+            <p>No transactions yet this month.</p>
+            <a href="{{ url_for('add_transaction') }}" class="btn-primary">Add your first transaction</a>
+          {% else %}
+            <p>No transactions in {{ month_label }}.</p>
+            <a href="{{ url_for('budget') }}" class="btn-ghost">Back to current month</a>
+          {% endif %}
         </div>
       {% endif %}
     </div>
