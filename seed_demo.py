@@ -102,12 +102,17 @@ TRANSACTIONS = [
     ("Calc textbook",             82.00, "expense", 12, "Books",     "Used copy"),
     ("Movie night",               18.00, "expense", 6,  "Fun",       ""),
     ("Spotify",                    9.99, "expense", 7,  "Subscriptions", ""),
-    # Older weeks to give the z-score anomaly detector something to compare against
+    # Older weeks to give the z-score anomaly detector something to compare against.
+    # Need >=3 weeks of data and tight spread so this week's spike registers as
+    # an outlier with z > 2.
     ("Groceries", 58.30, "expense", 9,  "Food", ""),
     ("Groceries", 71.10, "expense", 16, "Food", ""),
     ("Groceries", 49.80, "expense", 23, "Food", ""),
-    # A clearly anomalous food spike this week
-    ("Birthday dinner — group",  142.00, "expense", 0, "Food", "Sushi for 4"),
+    ("Groceries", 55.00, "expense", 30, "Food", ""),
+    ("Groceries", 62.50, "expense", 37, "Food", ""),
+    ("Groceries", 60.20, "expense", 44, "Food", ""),
+    # A clearly anomalous food spike this week — triggers the AI alert on the budget page
+    ("Birthday dinner — group",  185.00, "expense", 0, "Food", "Sushi for 4"),
 ]
 
 # (name, target_amount, saved_amount, days_until_deadline_or_None)
