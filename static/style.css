@@ -37,7 +37,10 @@
 html { font-size: 16px; }
 body {
   font-family: 'DM Sans', system-ui, sans-serif;
-  background: var(--bg);
+  /* Soft lavender bleeding into off-white — stays fixed on scroll so the
+     gradient reads consistently across every page, short or long. */
+  background:
+    linear-gradient(180deg, #f1ecfe 0%, #f8f5ff 35%, var(--bg) 100%) fixed;
   color: var(--ink);
   min-height: 100vh;
   display: flex;
@@ -53,7 +56,10 @@ img { max-width: 100%; }
   align-items: center;
   justify-content: space-between;
   padding: .9rem 2rem;
-  background: var(--surface);
+  /* Frosted-glass over the lavender body gradient — premium, no hard edge */
+  background: rgba(255, 255, 255, .72);
+  backdrop-filter: saturate(160%) blur(12px);
+  -webkit-backdrop-filter: saturate(160%) blur(12px);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
