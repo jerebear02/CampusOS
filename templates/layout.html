@@ -22,7 +22,7 @@
         </a>
         <a href="{{ url_for('budget') }}">Budget</a>
         <a href="{{ url_for('planner') }}">Planner</a>
-        <a href="{{ url_for('profile', username=session.username) }}" class="nav-avatar" style="background:{{ session_avatar_color or '#2d6a4f' }}">{{ session.username[0].upper() }}</a>
+        <a href="{{ url_for('profile', username=session.username) }}" class="nav-avatar" style="background:{{ session_avatar_color or '#6366f1' }}">{{ session.username[0].upper() }}</a>
         <a href="{{ url_for('logout') }}" class="btn-ghost">Log out</a>
       {% else %}
         <a href="{{ url_for('login') }}">Log in</a>
@@ -46,7 +46,7 @@
   </main>
 
   <footer class="site-footer">
-    <span>CampusOS · CS50x Final Project · Phases 1, 2 &amp; 3</span>
+    <span>A <a href="#" class="footer-parent">Vantage AI LLC</a> product</span>
   </footer>
 
 </body>
