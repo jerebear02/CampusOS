@@ -1,140 +1,160 @@
 # CampusOS
-### CS50x Final Project — A College Student Super-App
 
-CampusOS is a full-stack web application that combines three tools every college student needs into a single platform: a peer skill exchange network, a personal finance tracker, and a transfer planning system.
+> **A student super-app — skill exchange, budget tracker, and transfer planner in one Flask app, with three machine-learning features that actually do useful work in the product.**
 
----
+<p>
+  <strong><a href="https://getcampusos.app">→ Live demo</a></strong>
+  &nbsp;·&nbsp;
+  <a href="#demo">Demo</a>
+  &nbsp;·&nbsp;
+  <a href="#screenshots">Screenshots</a>
+  &nbsp;·&nbsp;
+  <a href="#tech-stack">Tech</a>
+  &nbsp;·&nbsp;
+  <a href="#run-it-locally">Run locally</a>
+</p>
 
-## Video Demo
+**Try it instantly** — log in as `alex_demo` / `demo1234` for a fully populated account.
 
-<!-- Replace this link with your actual CS50 video submission URL -->
-[Watch the demo](https://youtu.be/REPLACE_WITH_YOUR_LINK)
-
----
-
-## Description
-
-CampusOS was built as a CS50x final project to demonstrate every major concept covered in the course — C foundations, Python, SQL, Flask, HTML/CSS/JS — with an added machine learning layer that makes the app smarter as more students use it.
-
-The app is organized into three phases, each of which is independently useful:
-
-### Phase 1 — Campus Skills Exchange
-A community platform where students post skills they can teach and skills they want to learn, then send match requests to connect with peers. The feed is powered by a **TF-IDF + cosine similarity** model (scikit-learn) that ranks results by relevance when you search — so if you search "Python", the most relevant tutors surface first rather than just the newest posts.
-
-**Key features:**
-- User registration and login with hashed passwords (Werkzeug)
-- Skill posting (teach or learn) with descriptions
-- AI-ranked feed with search
-- Match request system (send, accept, decline)
-- User profiles
-
-### Phase 2 — Budget Buddy
-A personal finance dashboard attached to each user's account. Students log income and expenses, categorize their spending, set savings goals, and visualize their finances with a doughnut chart. A **z-score anomaly detection** model flags unusual spending — if you normally spend $50/week on food and spend $200 one week, the app surfaces a warning.
-
-**Key features:**
-- Income and expense tracking
-- Custom spending categories with color coding
-- Savings goals with progress bars
-- Spending breakdown chart (Chart.js)
-- AI-powered anomaly detection
-
-### Phase 3 — Transfer Planner
-A course tracker and transfer planning tool for community college students. Students log completed, in-progress, and planned courses to calculate their GPA automatically. They can add target schools and get an AI admission probability estimate powered by a **K-Nearest Neighbors classifier** trained on crowdsourced transfer outcome data submitted by the community.
-
-**Key features:**
-- Course tracker with GPA calculator (weighted by credits and grade)
-- Target school tracker with deadlines
-- KNN-based transfer probability estimator
-- Community data page where students share and browse transfer outcomes
+<!-- Replace with a real hero screenshot once available -->
+<!-- ![CampusOS dashboard](docs/screenshots/hero.png) -->
+<p><em>📸 Hero screenshot coming — drop a PNG at <code>docs/screenshots/hero.png</code> and uncomment the line above.</em></p>
 
 ---
 
-## Tech Stack
+## Demo
+
+<!-- Replace with a walkthrough GIF when available -->
+<!-- ![CampusOS walkthrough](docs/screenshots/walkthrough.gif) -->
+<p><em>🎬 Walkthrough GIF coming — drop one at <code>docs/screenshots/walkthrough.gif</code> and uncomment the line above.</em></p>
+
+Logging in as `alex_demo` shows the app fully populated:
+- 4 teach skills, 2 pending match requests (with a navbar badge)
+- A budget with 7 weeks of category-tagged spending and an active AI anomaly alert
+- 23 credits of completed coursework with an auto-calculated GPA and KNN-powered admission probabilities for 3 target schools
+
+---
+
+## Why it's interesting
+
+Beyond a typical CRUD app, CampusOS ships **three real ML features**, each wrapped to degrade gracefully if scikit-learn isn't available or data is sparse:
+
+| Feature | Algorithm | What it does |
+|---|---|---|
+| Skill feed search | TF-IDF + cosine similarity | Ranks the skills feed by query relevance, not just recency |
+| Spending anomaly alerts | Z-score over weekly buckets | Flags categories where this week is >2σ above your typical spend |
+| Transfer admission estimate | K-nearest neighbors (k=5) | Predicts admission % at a target school based on crowdsourced outcomes |
+
+It's a single Flask app — no microservices, no ORM, no external APIs. Raw SQL on SQLite, Werkzeug auth, scikit-learn for the ML, Chart.js for visualization, vanilla JS for interactivity.
+
+---
+
+## What it does
+
+### 🎓 Phase 1 — Campus Skills Exchange
+Post what you can teach and what you want to learn. Browse a relevance-ranked feed (filter by school, paginated 12-per-page). Send match requests; receive a navbar badge when peers want to learn what you can teach.
+
+### 💸 Phase 2 — Budget Buddy
+Track income and expenses by category. Set savings goals with progress bars. Doughnut chart breaks down spending. Switch between months from a dropdown. AI flags unusual spending weeks automatically.
+
+### 🎯 Phase 3 — Transfer Planner
+Track completed, in-progress, and planned courses. GPA calculated automatically (credit-weighted). Add target schools — KNN estimates your admission chance from crowdsourced community data, and the community page lets you contribute your own outcome.
+
+---
+
+## Screenshots
+
+<!-- Drop screenshots at docs/screenshots/ then uncomment this table -->
+<!--
+| Skill feed (AI-ranked) | Budget dashboard | Transfer planner |
+|:---:|:---:|:---:|
+| ![](docs/screenshots/feed.png) | ![](docs/screenshots/budget.png) | ![](docs/screenshots/planner.png) |
+| Pagination + school filter | Anomaly alert + monthly view | KNN admission estimate |
+-->
+
+<p><em>📸 Screenshot grid coming — drop <code>feed.png</code>, <code>budget.png</code>, and <code>planner.png</code> into <code>docs/screenshots/</code> and uncomment the block above.</em></p>
+
+---
+
+## Tech stack
 
 | Layer | Technology |
-|-------|-----------|
-| Backend | Python 3, Flask, Flask-Session |
-| Database | SQLite |
-| Frontend | Jinja2, HTML, CSS, vanilla JavaScript |
-| AI / ML | scikit-learn (TF-IDF, cosine similarity, KNN), NumPy |
+|---|---|
+| Backend | Python 3.12, Flask, Flask-Session |
+| Database | SQLite (raw SQL, no ORM) |
+| Frontend | Jinja2, vanilla JS, hand-rolled responsive CSS |
+| ML | scikit-learn (TF-IDF, cosine similarity, KNN), NumPy |
 | Auth | Werkzeug password hashing |
 | Charts | Chart.js |
+| Deploy | Render Blueprint, gunicorn |
 
 ---
 
-## File Structure
+## Design decisions
 
-```
-campusos/
-├── app.py              # Main Flask application — all routes and AI logic
-├── schema.sql          # SQLite schema — 6 tables across 3 phases
-├── requirements.txt    # Python dependencies
-├── static/
-│   └── style.css       # Full stylesheet
-└── templates/
-    ├── layout.html           # Base layout with navbar
-    ├── index.html            # Landing page
-    ├── register.html         # Registration
-    ├── login.html            # Login
-    ├── feed.html             # Skills feed (Phase 1)
-    ├── profile.html          # User profile (Phase 1)
-    ├── add_skill.html        # Add skill form (Phase 1)
-    ├── matches.html          # Match requests (Phase 1)
-    ├── budget.html           # Budget dashboard (Phase 2)
-    ├── add_transaction.html  # Add transaction (Phase 2)
-    ├── categories.html       # Manage categories (Phase 2)
-    ├── goals.html            # Savings goals (Phase 3)
-    ├── planner.html          # Transfer planner dashboard (Phase 3)
-    ├── add_course.html       # Add course (Phase 3)
-    └── transfer_community.html  # Community transfer data (Phase 3)
-```
+**One app, not three.** All three phases share a single Flask app, single SQLite DB, and single auth system. Each phase adds tables and routes on top of the existing foundation — mirrors how real production apps grow.
+
+**SQL over ORM.** All queries are raw SQL using `sqlite3` — keeps the codebase close to what's taught in CS50 and readable end-to-end with no abstraction layer.
+
+**AI that degrades gracefully.** Every ML feature is guarded: if scikit-learn isn't installed, if there's not enough data, if a query is empty — the app falls back to a sensible default rather than throwing. The app boots even with sklearn missing.
+
+**No external APIs.** All ML runs locally. No OpenAI key, no third-party services — the app is fully self-contained and free to run.
+
+**Idempotent migrations.** The DB schema and seed script both run `ALTER TABLE` migrations on boot, so the app can roll out schema changes without manual SQL.
 
 ---
 
-## Design Decisions
-
-**One app, not three.** All three phases share a single Flask app, a single SQLite database, and a single user authentication system. Each phase adds tables and routes on top of the existing foundation rather than being a separate project. This mirrors how real production apps are built.
-
-**AI that degrades gracefully.** All three AI components (TF-IDF ranking, z-score detection, KNN classifier) are wrapped in try/except blocks and conditional checks. If scikit-learn is not installed or there is insufficient data, the app falls back to default behavior rather than crashing.
-
-**SQL over ORM.** All database queries are written in raw SQL using sqlite3 rather than an ORM like SQLAlchemy. This was a deliberate choice to stay close to the SQL concepts taught in CS50 and to keep the codebase readable.
-
-**No external APIs.** All AI features are implemented locally with scikit-learn — no OpenAI API key or external service required. This keeps the app self-contained and free to run.
-
----
-
-## How to Run
+## Run it locally
 
 ```bash
 pip install -r requirements.txt
-python app.py
+python app.py              # → http://127.0.0.1:5000
 ```
 
 The database is created automatically on first run.
 
-To populate the app with sample users, skills, matches, and dashboards so it doesn't look empty:
+To populate the app with sample users and dashboards so it doesn't look empty:
 
 ```bash
 python seed_demo.py            # idempotent — safe to run anytime
 python seed_demo.py --reset    # wipe demo users and reseed
 ```
 
-All seeded users share the password `demo1234`. The user `alex_demo` has the most populated Budget and Planner dashboards.
+All seeded users share the password `demo1234`. Log in as `alex_demo` for the most populated account.
 
 ---
 
-## Deploy (Render)
+## Deploy
 
-This repo includes a `render.yaml` Blueprint. To deploy:
+The repo ships with a [`render.yaml`](render.yaml) Render Blueprint. Push to GitHub, then in Render: **New + → Blueprint → connect repo → apply**. Render reads the Blueprint, sets a random `SECRET_KEY`, runs `seed_demo.py`, and serves under gunicorn.
 
-1. Push the repo to GitHub
-2. In Render, click **New + → Blueprint** and connect the repo
-3. Apply — Render reads `render.yaml`, sets a random `SECRET_KEY`, runs the seed script, and starts the app under gunicorn
+The live URL ([getcampusos.app](https://getcampusos.app)) runs on Render's free tier — the SQLite DB is ephemeral and is reseeded on every boot. For persistent data, uncomment the `disk:` block in `render.yaml` (paid plan required) or migrate to Postgres.
 
-On Render's free plan, instance storage is ephemeral — the SQLite DB is recreated on every restart, so the seed script runs at startup to keep the app populated. For real persistent data, upgrade to a paid plan and uncomment the `disk:` block in `render.yaml` (or migrate to Postgres).
+---
+
+## File structure
+
+```
+campusos/
+├── app.py              # All routes, ML, context processors, migrations
+├── schema.sql          # 9 tables across 3 phases
+├── seed_demo.py        # Demo data — 6 users, 30 skills, full dashboards
+├── render.yaml         # Render Blueprint
+├── requirements.txt
+├── static/
+│   └── style.css
+└── templates/
+    ├── layout.html
+    ├── index.html · register.html · login.html
+    ├── feed.html · profile.html · add_skill.html · matches.html     # Phase 1
+    ├── budget.html · add_transaction.html · categories.html · goals.html  # Phase 2
+    └── planner.html · add_course.html · transfer_community.html     # Phase 3
+```
 
 ---
 
 ## Author
 
-Built by [jerebear02](https://github.com/jerebear02) for CS50x.
+Built by **[Jeremiah](https://github.com/jerebear02)** as the CS50x final project.
+
+Contact: [hel1o@realvantageai.co](mailto:hel1o@realvantageai.co)
