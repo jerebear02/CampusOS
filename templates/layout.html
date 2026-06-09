@@ -6,13 +6,13 @@
   <title>{% block title %}CampusOS{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Outfit:wght@800;900&family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
 
   <nav class="navbar">
-    <a href="{{ url_for('index') }}" class="nav-brand">Campus<span>OS</span></a>
+    <a href="{{ url_for('index') }}" class="nav-brand" aria-label="CampusOS"><span class="nb-letter">C</span><span class="nb-letter">a</span><span class="nb-letter">m</span><span class="nb-letter">p</span><span class="nb-letter">u</span><span class="nb-letter">s</span><span class="nb-os">OS</span></a>
     <div class="nav-links">
       {% if session.user_id %}
         <a href="{{ url_for('feed') }}">Feed</a>

@@ -66,20 +66,62 @@ img { max-width: 100%; }
   z-index: 100;
 }
 .nav-brand {
-  font-family: 'DM Serif Display', Georgia, serif;
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-weight: 900;
   font-size: 1.5rem;
+  letter-spacing: -.04em;
   color: var(--ink);
   text-decoration: none;
-  letter-spacing: -.025em;
+  display: inline-flex;
+  /* Establish a baseline so the lift transform looks anchored */
+  line-height: 1;
 }
-.nav-brand span {
+.nav-brand:hover { text-decoration: none; }
+
+.nav-brand .nb-letter,
+.nav-brand .nb-os {
+  display: inline-block;
+  transition: transform .35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Stagger each letter — runs left-to-right on hover, right-to-left on un-hover */
+.nav-brand .nb-letter:nth-child(1) { transition-delay: 0ms; }
+.nav-brand .nb-letter:nth-child(2) { transition-delay: 50ms; }
+.nav-brand .nb-letter:nth-child(3) { transition-delay: 100ms; }
+.nav-brand .nb-letter:nth-child(4) { transition-delay: 150ms; }
+.nav-brand .nb-letter:nth-child(5) { transition-delay: 200ms; }
+.nav-brand .nb-letter:nth-child(6) { transition-delay: 250ms; }
+.nav-brand .nb-os { transition-delay: 300ms; }
+
+.nav-brand:hover .nb-letter,
+.nav-brand:hover .nb-os {
+  transform: translateY(-5px);
+}
+
+/* The "OS" suffix carries the brand gradient — sweeps left-to-right on hover */
+.nav-brand .nb-os {
   background: var(--gradient);
+  background-size: 200% 100%;
+  background-position: 0 50%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  /* Animate two properties; pin the transition list explicitly */
+  transition:
+    transform .35s cubic-bezier(0.34, 1.56, 0.64, 1) 300ms,
+    background-position .6s ease 0ms;
 }
-.nav-brand:hover { text-decoration: none; }
+.nav-brand:hover .nb-os {
+  background-position: 100% 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-brand .nb-letter,
+  .nav-brand .nb-os { transition: none; }
+  .nav-brand:hover .nb-letter,
+  .nav-brand:hover .nb-os { transform: none; }
+}
 .nav-links {
   display: flex;
   align-items: center;
