@@ -318,20 +318,53 @@ main { flex: 1; }
   pointer-events: none;
 }
 .hero-title {
-  font-family: 'DM Serif Display', Georgia, serif;
-  font-size: clamp(2.75rem, 7vw, 4.5rem);
-  line-height: 1.05;
-  letter-spacing: -.02em;
+  font-family: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.75rem, 7.5vw, 5rem);
+  line-height: 1;
+  letter-spacing: -.035em;
   color: var(--ink);
   margin-bottom: 1.25rem;
+  /* Swoop in from the left on initial load */
+  animation: swoop-in 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .hero-title em {
   font-style: normal;
+  font-weight: 800;
   background: var(--gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+}
+
+@keyframes swoop-in {
+  from {
+    opacity: 0;
+    transform: translateX(-80px) skewX(-3deg);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) skewX(0);
+  }
+}
+
+/* Stagger the subtitle and CTAs in just after the title lands */
+.hero-sub { animation: fade-up .7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; }
+.hero-actions { animation: fade-up .7s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
+.hero-tags { animation: fade-up .7s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Honor reduced-motion: skip the choreography, just show the content */
+@media (prefers-reduced-motion: reduce) {
+  .hero-title, .hero-sub, .hero-actions, .hero-tags { animation: none; }
 }
 .hero-sub {
   font-size: 1.15rem;
