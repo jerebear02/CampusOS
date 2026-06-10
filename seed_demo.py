@@ -39,7 +39,7 @@ USERS = [
 
 # (username, type, name, description)
 SKILLS = [
-    ("alex_demo", "teach", "Python",            "Comfortable with CS50 material — pointers, recursion, basic algorithms."),
+    ("alex_demo", "teach", "Python",            "Comfortable with intro CS material — pointers, recursion, basic algorithms."),
     ("alex_demo", "teach", "Intro to Flask",    "Can walk you through building a small Flask app from scratch."),
     ("alex_demo", "teach", "Git & GitHub",      "Branching, merging, resolving conflicts, PR workflow."),
     ("alex_demo", "teach", "Debugging",         "Reading stack traces, using pdb, isolating tricky bugs."),

@@ -16,17 +16,11 @@
 
 **Try it instantly** — log in as `alex_demo` / `demo1234` for a fully populated account.
 
-<!-- Replace with a real hero screenshot once available -->
-<!-- ![CampusOS dashboard](docs/screenshots/hero.png) -->
-<p><em>📸 Hero screenshot coming — drop a PNG at <code>docs/screenshots/hero.png</code> and uncomment the line above.</em></p>
+![CampusOS dashboard](docs/screenshots/hero.png)
 
 ---
 
 ## Demo
-
-<!-- Replace with a walkthrough GIF when available -->
-<!-- ![CampusOS walkthrough](docs/screenshots/walkthrough.gif) -->
-<p><em>🎬 Walkthrough GIF coming — drop one at <code>docs/screenshots/walkthrough.gif</code> and uncomment the line above.</em></p>
 
 Logging in as `alex_demo` shows the app fully populated:
 - 4 teach skills, 2 pending match requests (with a navbar badge)
@@ -64,15 +58,10 @@ Track completed, in-progress, and planned courses. GPA calculated automatically 
 
 ## Screenshots
 
-<!-- Drop screenshots at docs/screenshots/ then uncomment this table -->
-<!--
 | Skill feed (AI-ranked) | Budget dashboard | Transfer planner |
 |:---:|:---:|:---:|
 | ![](docs/screenshots/feed.png) | ![](docs/screenshots/budget.png) | ![](docs/screenshots/planner.png) |
 | Pagination + school filter | Anomaly alert + monthly view | KNN admission estimate |
--->
-
-<p><em>📸 Screenshot grid coming — drop <code>feed.png</code>, <code>budget.png</code>, and <code>planner.png</code> into <code>docs/screenshots/</code> and uncomment the block above.</em></p>
 
 ---
 
@@ -94,7 +83,7 @@ Track completed, in-progress, and planned courses. GPA calculated automatically 
 
 **One app, not three.** All three phases share a single Flask app, single SQLite DB, and single auth system. Each phase adds tables and routes on top of the existing foundation — mirrors how real production apps grow.
 
-**SQL over ORM.** All queries are raw SQL using `sqlite3` — keeps the codebase close to what's taught in CS50 and readable end-to-end with no abstraction layer.
+**SQL over ORM.** All queries are raw SQL using `sqlite3` — the codebase reads top-to-bottom with no ORM abstraction layer in the way.
 
 **AI that degrades gracefully.** Every ML feature is guarded: if scikit-learn isn't installed, if there's not enough data, if a query is empty — the app falls back to a sensible default rather than throwing. The app boots even with sklearn missing.
 
@@ -155,6 +144,6 @@ campusos/
 
 ## Author
 
-Built by **[Jeremiah](https://github.com/jerebear02)** as the CS50x final project.
+Built by **[Jeremiah](https://github.com/jerebear02)** at [Vantage AI LLC](https://realvantageai.co).
 
 Contact: [hel1o@realvantageai.co](mailto:hel1o@realvantageai.co)
