@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block title %}Offline — CampusOS{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1 class="hero-title">You're <em>offline</em>.</h1>
+  <p class="hero-sub">CampusOS needs an internet connection to reach the latest skills, matches, and budget data. We'll reload as soon as you're back.</p>
+  <div class="hero-actions">
+    <button type="button" class="btn-gradient" onclick="location.reload()">Try again →</button>
+  </div>
+</section>
+{% endblock %}

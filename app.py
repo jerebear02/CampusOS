@@ -9,7 +9,7 @@ from datetime import date, datetime, timedelta
 from functools import wraps
 
 import numpy as np
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
 from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -155,6 +155,34 @@ def index():
     if session.get("user_id"):
         return redirect(url_for("feed"))
     return render_template("index.html")
+
+
+# ─── PWA endpoints ───────────────────────────────────────────────────────────
+# Both manifest.json and sw.js MUST be served at the root path (not /static/...)
+# so the service worker's scope can cover the whole app, not just /static/.
+
+@app.route("/manifest.json")
+def pwa_manifest():
+    return send_from_directory(
+        app.static_folder, "manifest.json", mimetype="application/manifest+json"
+    )
+
+
+@app.route("/sw.js")
+def pwa_service_worker():
+    response = send_from_directory(
+        app.static_folder, "sw.js", mimetype="application/javascript"
+    )
+    # Don't let intermediaries cache the SW — bumping CACHE_VERSION inside
+    # sw.js should reach clients on the next visit.
+    response.headers["Cache-Control"] = "no-cache"
+    response.headers["Service-Worker-Allowed"] = "/"
+    return response
+
+
+@app.route("/offline")
+def offline():
+    return render_template("offline.html")
 
 
 # ── Auth ──────────────────────────────────────────────────────────────────────

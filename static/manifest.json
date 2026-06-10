@@ -1,0 +1,58 @@
+{
+  "name": "CampusOS — Find your Study Match",
+  "short_name": "CampusOS",
+  "description": "AI-powered peer matching, budget tracking, and transfer planning for college students.",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#6366f1",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["education", "social", "productivity"],
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Skill feed",
+      "short_name": "Feed",
+      "description": "Browse and match with peers",
+      "url": "/feed?source=pwa_shortcut",
+      "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Budget",
+      "short_name": "Budget",
+      "description": "Track income and expenses",
+      "url": "/budget?source=pwa_shortcut",
+      "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Transfer planner",
+      "short_name": "Planner",
+      "description": "Track GPA and transfer chances",
+      "url": "/planner?source=pwa_shortcut",
+      "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
