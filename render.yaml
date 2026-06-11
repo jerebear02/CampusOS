@@ -21,6 +21,17 @@ services:
         value: 3.12.6
       - key: SECRET_KEY
         generateValue: true
+      # ── Email notifications (Resend) ──────────────────────────────────
+      # Get a key at resend.com → API Keys. The app boots fine without
+      # this; match-request emails just won't send.
+      - key: RESEND_API_KEY
+        sync: false  # set the value in the Render dashboard, not in git
+      # Override once you've verified a sending domain on Resend
+      - key: MATCH_EMAIL_FROM
+        value: "CampusOS <onboarding@resend.dev>"
+      # Used in email CTAs so links go to the live URL, not localhost
+      - key: APP_URL
+        value: "https://getcampusos.app"
       # Uncomment when on a paid plan with the disk block below:
       # - key: CAMPUSOS_DB
       #   value: /var/data/campusos.db

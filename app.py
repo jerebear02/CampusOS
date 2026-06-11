@@ -4,6 +4,9 @@ import math
 import hashlib
 import secrets
 import sqlite3
+import sys
+import urllib.error
+import urllib.request
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 from functools import wraps
@@ -93,6 +96,80 @@ def avatar_color_for(user):
         return AVATAR_PALETTE[0]
     h = int(hashlib.md5(name.encode("utf-8")).hexdigest()[:8], 16)
     return AVATAR_PALETTE[h % len(AVATAR_PALETTE)]
+
+
+# ─── Email notifications (Resend) ────────────────────────────────────────────
+
+RESEND_API_KEY    = os.environ.get("RESEND_API_KEY", "")
+# Resend's sandbox sender works out of the box but only delivers to the email
+# the Resend account is registered with. For production, set MATCH_EMAIL_FROM
+# to a verified-domain address like "CampusOS <notifications@getcampusos.app>".
+MATCH_EMAIL_FROM  = os.environ.get("MATCH_EMAIL_FROM", "CampusOS <onboarding@resend.dev>")
+APP_URL           = os.environ.get("APP_URL", "https://getcampusos.app")
+
+
+def send_match_email(to_email, to_username, requester_name, skill_name, skill_description=""):
+    """Fire-and-forget email to the match receiver via Resend.
+
+    Returns True if Resend accepted the request, False otherwise. Never raises —
+    a broken email path must not break the match-request flow.
+    """
+    if not RESEND_API_KEY or not to_email:
+        return False
+
+    # Build a small HTML email matching the CampusOS brand
+    desc_block = (
+        f'<p style="color:#475569;font-size:14px;line-height:1.55;margin:8px 0 0">'
+        f'<em>"{skill_description}"</em></p>'
+    ) if skill_description else ""
+
+    html = f"""<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:24px;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;color:#0f172a">
+  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:14px;padding:32px;box-shadow:0 2px 12px rgba(15,23,42,.05)">
+    <div style="font-weight:800;font-size:22px;letter-spacing:-.02em;margin-bottom:24px">
+      Campus<span style="background:linear-gradient(135deg,#6366f1,#ec4899);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent">OS</span>
+    </div>
+    <h1 style="font-size:22px;margin:0 0 14px;line-height:1.25">Hey {to_username} — new match request</h1>
+    <p style="color:#475569;font-size:15px;line-height:1.6;margin:0">
+      <strong style="color:#0f172a">{requester_name}</strong> wants to learn
+      <strong style="color:#0f172a">{skill_name}</strong> from you.
+    </p>
+    {desc_block}
+    <a href="{APP_URL}/matches" style="display:inline-block;margin-top:24px;padding:12px 22px;background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#ec4899 100%);color:#fff;text-decoration:none;border-radius:12px;font-weight:700;font-size:15px">View request →</a>
+    <p style="color:#94a3b8;font-size:12px;margin-top:32px;line-height:1.5">
+      You're getting this because someone on CampusOS wants to study with you.
+      Manage your matches at <a href="{APP_URL}/matches" style="color:#6366f1;text-decoration:none">{APP_URL}/matches</a>.
+    </p>
+  </div>
+</body>
+</html>"""
+
+    payload = json.dumps({
+        "from":    MATCH_EMAIL_FROM,
+        "to":      [to_email],
+        "subject": f"{requester_name} wants to learn {skill_name}",
+        "html":    html,
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        "https://api.resend.com/emails",
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type":  "application/json",
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            return 200 <= resp.status < 300
+    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as e:
+        # Log to stderr so it shows up in Render logs, but don't crash the
+        # match flow — the DB insert already succeeded.
+        print(f"[resend] match notification failed: {e}", file=sys.stderr)
+        return False
 
 
 # ─── Auth decorator ──────────────────────────────────────────────────────────
@@ -489,7 +566,26 @@ def request_match(skill_id):
         VALUES (?, ?, ?, 'pending')
     """, (session["user_id"], skill["user_id"], skill_id))
     db.commit()
+
+    # Look up everything the notification email needs, while we still have
+    # the DB connection open. Email send failures are swallowed so they
+    # never block the match request from succeeding.
+    receiver = db.execute(
+        "SELECT username, email FROM users WHERE id = ?", (skill["user_id"],)
+    ).fetchone()
+    requester = db.execute(
+        "SELECT username FROM users WHERE id = ?", (session["user_id"],)
+    ).fetchone()
     db.close()
+
+    if receiver and requester:
+        send_match_email(
+            to_email=receiver["email"],
+            to_username=receiver["username"],
+            requester_name=requester["username"],
+            skill_name=skill["name"],
+            skill_description=skill["description"] or "",
+        )
 
     flash("Match request sent!", "success")
     return redirect(request.referrer or url_for("feed"))
