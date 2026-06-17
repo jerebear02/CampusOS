@@ -108,47 +108,37 @@ MATCH_EMAIL_FROM  = os.environ.get("MATCH_EMAIL_FROM", "CampusOS <onboarding@res
 APP_URL           = os.environ.get("APP_URL", "https://getcampusos.app")
 
 
-def send_match_email(to_email, to_username, requester_name, skill_name, skill_description=""):
-    """Fire-and-forget email to the match receiver via Resend.
-
-    Returns True if Resend accepted the request, False otherwise. Never raises —
-    a broken email path must not break the match-request flow.
-    """
-    if not RESEND_API_KEY or not to_email:
-        return False
-
-    # Build a small HTML email matching the CampusOS brand
-    desc_block = (
-        f'<p style="color:#475569;font-size:14px;line-height:1.55;margin:8px 0 0">'
-        f'<em>"{skill_description}"</em></p>'
-    ) if skill_description else ""
-
-    html = f"""<!DOCTYPE html>
+def _brand_email_html(headline, body_html, cta_text="View matches", cta_path="/matches"):
+    """Wrap a per-event body in the shared CampusOS brand shell."""
+    return f"""<!DOCTYPE html>
 <html>
 <body style="margin:0;padding:24px;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;color:#0f172a">
   <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:14px;padding:32px;box-shadow:0 2px 12px rgba(15,23,42,.05)">
     <div style="font-weight:800;font-size:22px;letter-spacing:-.02em;margin-bottom:24px">
       Campus<span style="background:linear-gradient(135deg,#6366f1,#ec4899);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent">OS</span>
     </div>
-    <h1 style="font-size:22px;margin:0 0 14px;line-height:1.25">Hey {to_username} — new match request</h1>
-    <p style="color:#475569;font-size:15px;line-height:1.6;margin:0">
-      <strong style="color:#0f172a">{requester_name}</strong> wants to learn
-      <strong style="color:#0f172a">{skill_name}</strong> from you.
-    </p>
-    {desc_block}
-    <a href="{APP_URL}/matches" style="display:inline-block;margin-top:24px;padding:12px 22px;background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#ec4899 100%);color:#fff;text-decoration:none;border-radius:12px;font-weight:700;font-size:15px">View request →</a>
+    <h1 style="font-size:22px;margin:0 0 14px;line-height:1.25">{headline}</h1>
+    {body_html}
+    <a href="{APP_URL}{cta_path}" style="display:inline-block;margin-top:24px;padding:12px 22px;background:linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#ec4899 100%);color:#fff;text-decoration:none;border-radius:12px;font-weight:700;font-size:15px">{cta_text} →</a>
     <p style="color:#94a3b8;font-size:12px;margin-top:32px;line-height:1.5">
-      You're getting this because someone on CampusOS wants to study with you.
+      You're getting this because someone on CampusOS interacted with you.
       Manage your matches at <a href="{APP_URL}/matches" style="color:#6366f1;text-decoration:none">{APP_URL}/matches</a>.
     </p>
   </div>
 </body>
 </html>"""
 
+
+def _resend_send(to_email, subject, html, log_tag):
+    """POST one email through Resend. Returns True on 2xx, False otherwise.
+    Never raises — caller-side flows must not break on a bad email path."""
+    if not RESEND_API_KEY or not to_email:
+        return False
+
     payload = json.dumps({
         "from":    MATCH_EMAIL_FROM,
         "to":      [to_email],
-        "subject": f"{requester_name} wants to learn {skill_name}",
+        "subject": subject,
         "html":    html,
     }).encode("utf-8")
 
@@ -166,10 +156,77 @@ def send_match_email(to_email, to_username, requester_name, skill_name, skill_de
         with urllib.request.urlopen(req, timeout=5) as resp:
             return 200 <= resp.status < 300
     except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as e:
-        # Log to stderr so it shows up in Render logs, but don't crash the
-        # match flow — the DB insert already succeeded.
-        print(f"[resend] match notification failed: {e}", file=sys.stderr)
+        print(f"[resend] {log_tag} failed: {e}", file=sys.stderr)
         return False
+
+
+# ─── Per-event email functions ───────────────────────────────────────────────
+
+def send_match_request_email(to_email, to_username, requester_name, skill_name, skill_description=""):
+    """Email the RECEIVER when someone sends them a new match request."""
+    desc_block = (
+        f'<p style="color:#475569;font-size:14px;line-height:1.55;margin:8px 0 0">'
+        f'<em>"{skill_description}"</em></p>'
+    ) if skill_description else ""
+
+    body = f"""
+    <p style="color:#475569;font-size:15px;line-height:1.6;margin:0">
+      <strong style="color:#0f172a">{requester_name}</strong> wants to learn
+      <strong style="color:#0f172a">{skill_name}</strong> from you.
+    </p>
+    {desc_block}"""
+
+    html = _brand_email_html(
+        headline=f"Hey {to_username} — new match request",
+        body_html=body,
+        cta_text="View request",
+        cta_path="/matches",
+    )
+    return _resend_send(
+        to_email, f"{requester_name} wants to learn {skill_name}", html, "match-request"
+    )
+
+
+def send_match_accepted_email(to_email, to_username, accepter_name, skill_name):
+    """Email the REQUESTER when their request is accepted."""
+    body = f"""
+    <p style="color:#475569;font-size:15px;line-height:1.6;margin:0">
+      Good news, {to_username} — <strong style="color:#0f172a">{accepter_name}</strong>
+      accepted your request to learn <strong style="color:#0f172a">{skill_name}</strong>.
+      Reach out and set up your first study session.
+    </p>"""
+
+    html = _brand_email_html(
+        headline="🎉 You're connected!",
+        body_html=body,
+        cta_text="Open matches",
+        cta_path="/matches",
+    )
+    return _resend_send(
+        to_email, f"{accepter_name} accepted your match for {skill_name}", html, "match-accepted"
+    )
+
+
+def send_match_declined_email(to_email, to_username, decliner_name, skill_name):
+    """Email the REQUESTER when their request is declined.
+    Soft tone — point them at the feed to find an alternative."""
+    body = f"""
+    <p style="color:#475569;font-size:15px;line-height:1.6;margin:0">
+      Hey {to_username} — <strong style="color:#0f172a">{decliner_name}</strong>
+      can't help with <strong style="color:#0f172a">{skill_name}</strong> right now.
+      No worries — plenty of peers teach the same skill. Browse the feed and send
+      another request.
+    </p>"""
+
+    html = _brand_email_html(
+        headline="Match declined",
+        body_html=body,
+        cta_text="Browse the feed",
+        cta_path="/feed",
+    )
+    return _resend_send(
+        to_email, f"Update on your CampusOS match for {skill_name}", html, "match-declined"
+    )
 
 
 # ─── Auth decorator ──────────────────────────────────────────────────────────
@@ -579,7 +636,7 @@ def request_match(skill_id):
     db.close()
 
     if receiver and requester:
-        send_match_email(
+        send_match_request_email(
             to_email=receiver["email"],
             to_username=receiver["username"],
             requester_name=requester["username"],
@@ -653,7 +710,35 @@ def respond_match(match_id):
 
     db.execute("UPDATE matches SET status = ? WHERE id = ?", (action, match_id))
     db.commit()
+
+    # Look up requester (the email recipient), the responder, and the skill so
+    # we can fire the right notification. Done while the DB is still open.
+    requester = db.execute(
+        "SELECT username, email FROM users WHERE id = ?", (match["requester_id"],)
+    ).fetchone()
+    responder = db.execute(
+        "SELECT username FROM users WHERE id = ?", (match["receiver_id"],)
+    ).fetchone()
+    skill = db.execute(
+        "SELECT name FROM skills WHERE id = ?", (match["skill_id"],)
+    ).fetchone()
     db.close()
+
+    if requester and responder and skill:
+        if action == "accepted":
+            send_match_accepted_email(
+                to_email=requester["email"],
+                to_username=requester["username"],
+                accepter_name=responder["username"],
+                skill_name=skill["name"],
+            )
+        else:
+            send_match_declined_email(
+                to_email=requester["email"],
+                to_username=requester["username"],
+                decliner_name=responder["username"],
+                skill_name=skill["name"],
+            )
 
     msg = "Match accepted! You're connected." if action == "accepted" else "Match declined."
     flash(msg, "success" if action == "accepted" else "error")
