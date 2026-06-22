@@ -79,10 +79,12 @@ SKILLS = [
 # (requester_username, receiver_username, skill_name, status)
 # Skills are looked up by (receiver, name) so they match the right row.
 MATCHES = [
+    # alex_demo — already covered: 2 incoming pending, 2 incoming accepted,
+    # 1 outgoing pending, 1 outgoing declined.
     ("maya_demo",   "alex_demo",   "Python",                       "accepted"),
     ("sam_demo",    "alex_demo",   "Intro to Flask",               "accepted"),
-    # Pending incoming for alex_demo — so the navbar badge appears for the
-    # primary demo user reviewers will log in as.
+    # Pending incoming for alex_demo — drives the navbar "Matches 2" badge
+    # for the primary demo account.
     ("jordan_demo", "alex_demo",   "Python",                       "pending"),
     ("priya_demo",  "alex_demo",   "Intro to Flask",               "pending"),
     ("alex_demo",   "maya_demo",   "Calculus I & II",              "pending"),
@@ -90,6 +92,19 @@ MATCHES = [
     ("priya_demo",  "riley_demo",  "Essay editing",                "accepted"),
     ("sam_demo",    "riley_demo",  "Grammar coaching",             "pending"),
     ("alex_demo",   "jordan_demo", "Music theory",                 "declined"),
+
+    # ─── State-coverage additions ─────────────────────────────────────────
+    # Goal: every demo user has at least one match in each state (pending,
+    # accepted, declined) so reviewers logging in as any account can step
+    # through the full UI + email flows.
+    ("maya_demo",   "sam_demo",    "Portfolio sites",              "declined"),   # maya: + outgoing declined
+    ("riley_demo",  "jordan_demo", "Piano (beginner-intermediate)","accepted"),   # jordan: + incoming accepted; riley: + outgoing accepted
+    ("jordan_demo", "priya_demo",  "Anatomy & physiology",         "accepted"),   # jordan: + outgoing accepted; priya: + incoming accepted
+    ("sam_demo",    "jordan_demo", "Music theory",                 "pending"),    # jordan: + incoming pending (so navbar badge fires)
+    ("sam_demo",    "jordan_demo", "Sight reading",                "declined"),   # jordan: + incoming declined; sam: + outgoing declined
+    ("alex_demo",   "sam_demo",    "Resume review (CS)",           "pending"),    # sam: + incoming pending
+    ("sam_demo",    "priya_demo",  "MCAT prep strategy",           "pending"),    # priya: + incoming pending
+    ("priya_demo",  "riley_demo",  "Citations (APA/MLA)",          "declined"),   # priya: + outgoing declined; riley: + incoming declined
 ]
 
 # All Phase 2/3 demo data is attached to alex_demo so reviewers can see
